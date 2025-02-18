@@ -12,4 +12,11 @@ public class AuthDTO {
         private String username;
         private Role role;
     }
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LoginRequest{
+        private String username;
+        private String password;
+    }
 }

@@ -3,27 +3,30 @@ package com.example.ERP.ServiceLayer;
 import com.example.ERP.DTO.AuthDTO;
 import com.example.ERP.Models.User;
 import com.example.ERP.Repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 @Service
 public class Auth {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    Auth(UserRepository userRepository) {
+    Auth(UserRepository userRepository,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder=passwordEncoder;
+
     }
 
-    public AuthDTO.AuthResponse register(User details) {
+    public String register(User details) {
         User existingUser = userRepository.findByUserName(details.getUserName());
-
         if (existingUser != null) {
-            throw new RuntimeException("User already exists!");
+            return new String("User Already Exists");
         }
+        details.setPassword(passwordEncoder.encode(details.getPassword()));
         userRepository.save(details);
-
-        return new AuthDTO.AuthResponse(details.getUserName(), details.getRole());
+        return new String("Employee Registered Successfully");
 
     }
+
 }
