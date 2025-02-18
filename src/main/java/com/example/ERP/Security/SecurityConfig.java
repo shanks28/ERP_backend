@@ -24,16 +24,18 @@ public class SecurityConfig {
         http.csrf().disable();
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**","/login").permitAll() // Allow all under /auth
-                        .anyRequest().authenticated()
+                        .requestMatchers("/auth/**","/login").permitAll() // Allow all under /auth without authenticating
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/crm/**").hasRole("CRM")
+                        .requestMatchers("/billing/**").hasRole("BILLING")
+                        .anyRequest().authenticated() //protect everything else
                 )
                 .formLogin().disable() // Disable default form login
                 .logout()
-                .logoutUrl("/auth/logout")
-                .logoutSuccessUrl("/auth")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID");
-
+                    .logoutUrl("/auth/logout")
+                    .logoutSuccessUrl("/auth")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID");
         return http.build();
     }
 

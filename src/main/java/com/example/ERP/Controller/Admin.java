@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/validate")
-public class ValidateEmployee {
+@RequestMapping("/admin")
+public class Admin {
 
     @GetMapping("/hello")
     public String root(){

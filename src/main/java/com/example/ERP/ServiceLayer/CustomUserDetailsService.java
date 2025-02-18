@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+//to provide all user details to Spring Security from the database username,password and Roles
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
@@ -16,6 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository=userRepository;
     }
     @Override
+    //this is caleld when the user is logged in and passpassed to the authenticate function
     public UserDetails loadUserByUsername(String username){
         User user=userRepository.findByUserName(username);
         if(user==null){
