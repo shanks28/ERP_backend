@@ -45,7 +45,7 @@ public class Auth {
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
             HttpSession session = httpRequest.getSession(true);
-            session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext); //used for RBAC later
             session.setAttribute("user", request.getUsername());
             return "Login Successful";
         } catch (Exception e) {

@@ -10,12 +10,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+//can be considered as middleware ig
 public class SecurityConfig {
-    @Bean
+    @Bean //IOC purpose
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
-    @Bean
+    @Bean//IOC purpose
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
         return authenticationConfiguration.getAuthenticationManager();
     }
@@ -26,8 +27,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**","/login").permitAll() // Allow all under /auth without authenticating
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/crm/**").hasRole("CRM")
-                        .requestMatchers("/billing/**").hasRole("BILLING")
+                        .requestMatchers("/crm/**").hasAnyRole("ADMIN","CRM")
+                        .requestMatchers("/billing/**").hasAnyRole("ADMIN","BILLING")
                         .anyRequest().authenticated() //protect everything else
                 )
                 .formLogin().disable() // Disable default form login
