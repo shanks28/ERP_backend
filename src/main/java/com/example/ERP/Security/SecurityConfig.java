@@ -5,9 +5,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 @Configuration
 //can be considered as middleware ig
@@ -22,8 +26,17 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();
         http
+                .cors(cors-> cors.configurationSource(request->{
+                    var corsConfig=new CorsConfiguration();
+                    corsConfig.setAllowedOrigins(List.of("*"));
+                    corsConfig.setAllowCredentials(true);
+                    corsConfig.setAllowedMethods(List.of("*"));
+                    corsConfig.setAllowedMethods(List.of("*"));
+                    corsConfig.setMaxAge(3600L);
+                    return corsConfig;
+                }))
+                .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**","/login").permitAll() // Allow all under /auth without authenticating
                         .requestMatchers("/admin/**").hasRole("ADMIN")
