@@ -6,6 +6,8 @@ import com.example.ERP.ServiceLayer.Auth;
 import com.example.ERP.ServiceLayer.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Email;
+import jakarta.websocket.server.PathParam;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,12 +31,14 @@ public class Auth_Controller {
     }
     @PostMapping("/reset-password")
     public String resetPassword(@RequestBody AuthDTO.ResetPassword request) {
-        try {
-            String otp = "12445";
-            emailService.sendMail(request.getEmail(), otp);
-            return "OTP SENT";
-        } catch (Exception e) {
-            return e.toString();
-        }
+        return emailService.sendMail(request.getEmail());
+    }
+    @GetMapping("/verify-otp")
+    public HttpStatusCode verifyOtp(@RequestParam String email, @RequestParam String otp){
+        return authService.verifyOtp(email,otp);
+    }
+    @GetMapping("/update-password")
+    public HttpStatusCode resetPassword(@RequestParam String email,@RequestParam String new_password){
+        return authService.resetPassword(email,new_password);
     }
 }

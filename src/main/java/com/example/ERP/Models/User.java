@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 @Entity
 @Table(name="Users")
 @Data
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -31,6 +32,5 @@ public class User {
 
     @Column(nullable = true)
     private Integer OTP;
-
 
 }

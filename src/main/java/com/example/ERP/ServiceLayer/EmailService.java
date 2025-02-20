@@ -1,5 +1,7 @@
 package com.example.ERP.ServiceLayer;
 
+import com.example.ERP.Models.User;
+import com.example.ERP.Repository.UserRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.message.SimpleMessage;
@@ -9,28 +11,34 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import java.util.Random;
 
 @Service
 public class EmailService {
     private final JavaMailSender mailSender;
     private final Dotenv dotenv;
-    EmailService(JavaMailSender mailSender,Dotenv dotenv){
+    private final UserRepository userRepository;
+    EmailService(JavaMailSender mailSender, Dotenv dotenv, UserRepository userRepository){
         this.mailSender=mailSender;
         this.dotenv=dotenv;
+        this.userRepository=userRepository;
     }
-    public void sendMail(String dest,String otp){
-        try{
-            System.out.println(dotenv.get("MAIL_PASSWORD"));
-            SimpleMailMessage message=new SimpleMailMessage();
-            message.setTo(dest);
-            message.setFrom("gaunterodim68@gmail.com");
-            message.setSubject("RESET PASSWORD");
-            message.setText(otp);
-            mailSender.send(message);
-            System.out.println("email sent");
-        }catch (Exception E){
-            E.getLocalizedMessage();
+    public String sendMail(String dest){
+        User obj=userRepository.findByEmail(dest);
+        Random random=new Random();
+        if (obj==null){
+            return "NO SUCH USER";
         }
-
+        SimpleMailMessage message=new SimpleMailMessage();
+        message.setTo(dest);
+        message.setFrom("gaunterodim68@gmail.com");
+        message.setSubject("RESET PASSWORD");
+        int otp=1000+random.nextInt(9000);
+        obj.setOTP(otp);
+        userRepository.save(obj);
+        message.setText(String.valueOf(otp));
+        mailSender.send(message);
+        System.out.println(obj);
+        return "OTP SENT";
     }
 }

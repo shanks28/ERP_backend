@@ -6,6 +6,8 @@ import com.example.ERP.Repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -52,5 +54,20 @@ public class Auth {
             return "Invalid Username/Password";
         }
     }
+    public HttpStatusCode verifyOtp(String email, String otp){
+        User obj=userRepository.findByEmail(email);
+        if (obj.getOTP().equals(Integer.parseInt(otp))){
+            return ResponseEntity.ok().build().getStatusCode();
+        }
+        return ResponseEntity.badRequest().build().getStatusCode();
+    }
+    public HttpStatusCode resetPassword(String email,String new_password){
+        User obj=userRepository.findByEmail(email);
+        obj.setPassword(passwordEncoder.encode(new_password));
+        obj.setOTP(null);
+        userRepository.save(obj);
+        return ResponseEntity.ok().build().getStatusCode();
+    }
+
 
 }

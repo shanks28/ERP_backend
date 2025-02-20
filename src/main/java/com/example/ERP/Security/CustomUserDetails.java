@@ -18,11 +18,13 @@ public class CustomUserDetails implements UserDetails {
     private String username;
     private String password;
     private String email;
+    private Integer otp;
     private Collection<? extends GrantedAuthority> authorities;
     public CustomUserDetails(User user) {
         this.username = user.getUserName();
         this.password = user.getPassword();
         this.email=user.getEmail();
         this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        this.otp=user.getOTP();
     }
 }
