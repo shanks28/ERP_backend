@@ -15,29 +15,19 @@ public class MailConfig {
         this.dotenv=dotenv;
     }
     @Bean
-    public JavaMailSender javaMailSender() {
+    public JavaMailSender javaMailSender() throws Exception{
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-
-        // Safely retrieve environment variables from .env
         String host = dotenv.get("MAIL_HOST");
         String port = dotenv.get("MAIL_PORT");
         String username = dotenv.get("MAIL_USERNAME");
         String password = dotenv.get("MAIL_PASSWORD");
-
-        if (host == null || port == null || username == null || password == null) {
-            throw new IllegalStateException("Missing one or more mail configuration environment variables in .env");
-        }
-
         mailSender.setHost(host);
         mailSender.setPort(Integer.parseInt(port));
         mailSender.setUsername(username);
         mailSender.setPassword(password);
-
-        System.out.println("MAIL_PASSWORD (Debug Only): " + password);
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
+        Properties properties = mailSender.getJavaMailProperties();
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.starttls.enable", "true");
 
         return mailSender;
     }
