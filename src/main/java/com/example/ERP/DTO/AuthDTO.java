@@ -19,4 +19,10 @@ public class AuthDTO {
         private String username;
         private String password;
     }
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ResetPassword{
+        private String email;
+    }
 }

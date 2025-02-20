@@ -29,5 +29,8 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = true)
+    private Integer OTP;
+
 
 }
