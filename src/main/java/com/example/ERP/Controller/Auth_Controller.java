@@ -20,7 +20,10 @@ public class Auth_Controller {
         this.authService=authService;
         this.emailService=emailService;
     }
-
+    @GetMapping
+    public String root(){
+        return "HOME PAGE";
+    }
     @PostMapping("/register")
     public String register(@RequestBody User details){
         return authService.register(details);

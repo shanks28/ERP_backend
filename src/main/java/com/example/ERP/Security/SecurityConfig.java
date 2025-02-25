@@ -32,13 +32,17 @@ public class SecurityConfig {
                     corsConfig.setAllowedOrigins(List.of("*"));
                     corsConfig.setAllowCredentials(true);
                     corsConfig.setAllowedMethods(List.of("*"));
-                    corsConfig.setAllowedMethods(List.of("*"));
+                    corsConfig.setAllowedHeaders(List.of("*"));
                     corsConfig.setMaxAge(3600L);
                     return corsConfig;
                 }))
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**","/login").permitAll() // Allow all under /auth without authenticating
+                        .requestMatchers("/auth/**", "/login",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/api-docs/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/crm/**").hasAnyRole("ADMIN","CRM")
                         .requestMatchers("/billing/**").hasAnyRole("ADMIN","BILLING")
@@ -46,10 +50,11 @@ public class SecurityConfig {
                 )
                 .formLogin().disable() // Disable default form login
                 .logout()
-                    .logoutUrl("/auth/logout")
-                    .logoutSuccessUrl("/auth")
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID");
+                .logoutUrl("/auth/logout")
+                .logoutSuccessUrl("/auth")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll(); // Add permitAll() here to fix the logout issue
         return http.build();
     }
 

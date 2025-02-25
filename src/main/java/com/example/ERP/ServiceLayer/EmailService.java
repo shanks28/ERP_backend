@@ -31,7 +31,7 @@ public class EmailService {
         }
         SimpleMailMessage message=new SimpleMailMessage();
         message.setTo(dest);
-        message.setFrom("gaunterodim68@gmail.com");
+        message.setFrom("Apeksha@logistics.com");
         message.setSubject("RESET PASSWORD");
         int otp=1000+random.nextInt(9000);
         obj.setOTP(otp);
