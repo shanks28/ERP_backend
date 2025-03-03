@@ -7,6 +7,7 @@ import com.example.ERP.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.apache.coyote.Response;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +18,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class Auth {
@@ -49,13 +52,17 @@ public class Auth {
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
             User obj=userRepository.findByUserName(request.getUsername());
-            obj.setLastLogin(LocalDateTime.now());
+            LocalDateTime localDateTime=LocalDateTime.now();
+            DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            String formattedDate=localDateTime.format(dateTimeFormatter);
+            obj.setLastLogin(formattedDate);
             userRepository.save(obj);
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext); //used for RBAC later
             session.setAttribute("user", request.getUsername());
+            System.out.println(obj.getLastLogin());
             return ResponseEntity.ok().build().getStatusCode().value();// 200
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build().getStatusCode().value();//5XX

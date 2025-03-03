@@ -36,7 +36,7 @@ public class User {
     private Integer OTP;
 
     @Column(nullable = true,name = "last_login")
-    private LocalDateTime lastLogin;
+    private String lastLogin;
 
 
 }

@@ -22,7 +22,7 @@ public class CustomUserDetails implements UserDetails {
     private String email;
     private Integer otp;
     private Collection<? extends GrantedAuthority> authorities;
-    private LocalDateTime last_login;
+    private String last_login;
     public CustomUserDetails(User user) {
         this.username = user.getUserName();
         this.password = user.getPassword();
