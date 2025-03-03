@@ -29,9 +29,9 @@ public class SecurityConfig {
         http
                 .cors(cors-> cors.configurationSource(request->{
                     var corsConfig=new CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("*"));
+                    corsConfig.setAllowedOrigins(List.of("localhost:5137"));
                     corsConfig.setAllowCredentials(true);
-                    corsConfig.setAllowedMethods(List.of("*"));
+                    corsConfig.setAllowedMethods(List.of("GET","POST","PUT","OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("*"));
                     corsConfig.setMaxAge(3600L);
                     return corsConfig;

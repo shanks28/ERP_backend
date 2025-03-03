@@ -6,6 +6,8 @@ import jakarta.persistence.Column;
 import lombok.*;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name="Users")
 @Data
@@ -32,5 +34,9 @@ public class User {
 
     @Column(nullable = true)
     private Integer OTP;
+
+    @Column(nullable = true,name = "last_login")
+    private LocalDateTime lastLogin;
+
 
 }

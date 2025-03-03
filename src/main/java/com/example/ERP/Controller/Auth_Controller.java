@@ -8,7 +8,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Email;
 import jakarta.websocket.server.PathParam;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,27 +24,27 @@ public class Auth_Controller {
         this.emailService=emailService;
     }
     @GetMapping
-    public String root(){
-        return "HOME PAGE";
+    public Integer root(){
+        return ResponseEntity.ok().build().getStatusCode().value();
     }
     @PostMapping("/register")
-    public String register(@RequestBody User details){
+    public Integer register(@RequestBody User details){
         return authService.register(details);
     }
     @PostMapping("/login")
-    public String login(@RequestBody AuthDTO.LoginRequest request, HttpServletRequest httpRequest) {
+    public Integer login(@RequestBody AuthDTO.LoginRequest request, HttpServletRequest httpRequest) {
         return authService.login(request,httpRequest);
     }
     @PostMapping("/reset-password")
-    public String resetPassword(@RequestBody AuthDTO.ResetPassword request) {
+    public Integer resetPassword(@RequestBody AuthDTO.ResetPassword request) {
         return emailService.sendMail(request.getEmail());
     }
-    @GetMapping("/verify-otp")
-    public HttpStatusCode verifyOtp(@RequestParam String email, @RequestParam String otp){
-        return authService.verifyOtp(email,otp);
+    @PostMapping("/verify-otp")
+    public Integer verifyOtp(@RequestBody Map<String,Object> request){
+        return authService.verifyOtp((String)request.get("email"),(String)request.get("otp"));
     }
-    @GetMapping("/update-password")
-    public HttpStatusCode resetPassword(@RequestParam String email,@RequestParam String new_password){
-        return authService.resetPassword(email,new_password);
+    @PostMapping("/update-password")
+    public Integer resetPassword(@RequestBody Map<String,String> request){
+        return authService.resetPassword(request.get("email"),request.get("new_password"));
     }
 }
