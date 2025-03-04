@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.apache.coyote.Response;
 import org.springframework.cglib.core.Local;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,14 +37,14 @@ public class Auth {
 
     }
 
-    public Integer register(User details) {
+    public ResponseEntity<String> register(User details) {
         User existingUser = userRepository.findByUserName(details.getUserName());
         if (existingUser != null) {
-            return ResponseEntity.badRequest().build().getStatusCode().value();// 4XX
+            return new ResponseEntity<>("User Already Exists",HttpStatus.BAD_REQUEST); // 4XX
         }
         details.setPassword(passwordEncoder.encode(details.getPassword()));
         userRepository.save(details);
-        return ResponseEntity.ok().build().getStatusCode().value(); //2XX
+        return new ResponseEntity<>("User Registered",HttpStatus.OK); //2XX
 
     }
     public Integer login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest){

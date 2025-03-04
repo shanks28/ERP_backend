@@ -28,12 +28,12 @@ public class Auth_Controller {
         return ResponseEntity.ok().build().getStatusCode().value();
     }
     @PostMapping("/register")
-    public Integer register(@RequestBody User details){
+    public ResponseEntity<String> register(@RequestBody User details){
         return authService.register(details);
     }
     @PostMapping("/login")
     public Integer login(@RequestBody AuthDTO.LoginRequest request, HttpServletRequest httpRequest) {
-        return authService.login(request,httpRequest);
+        return authService.login(request,httpRequest);// ROLE and email to be sent to the front end
     }
     @PostMapping("/reset-password")
     public Integer resetPassword(@RequestBody AuthDTO.ResetPassword request) {
