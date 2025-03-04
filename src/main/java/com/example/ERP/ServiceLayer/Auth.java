@@ -47,7 +47,7 @@ public class Auth {
         return new ResponseEntity<>("User Registered",HttpStatus.OK); //2XX
 
     }
-    public Integer login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest){
+    public ResponseEntity<String> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest){
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
@@ -64,24 +64,24 @@ public class Auth {
             session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext); //used for RBAC later
             session.setAttribute("user", request.getUsername());
             System.out.println(obj.getLastLogin());
-            return ResponseEntity.ok().build().getStatusCode().value();// 200
+            return new ResponseEntity<>("User logged in",HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build().getStatusCode().value();//5XX
+            return new ResponseEntity<>("No Such user",HttpStatus.NO_CONTENT);
         }
     }
-    public Integer verifyOtp(String email, String otp){
+    public ResponseEntity<String> verifyOtp(String email, String otp){
         User obj=userRepository.findByEmail(email);
         if (obj.getOTP().equals(Integer.parseInt(otp))){
-            return ResponseEntity.ok().build().getStatusCode().value();
+            return new ResponseEntity<>("Verified",HttpStatus.OK);
         }
-        return ResponseEntity.badRequest().build().getStatusCode().value();
+        return new ResponseEntity<>("Incorrect OTP",HttpStatus.BAD_REQUEST);
     }
-    public Integer resetPassword(String email,String new_password){
+    public ResponseEntity<String> resetPassword(String email,String new_password){
         User obj=userRepository.findByEmail(email);
         obj.setPassword(passwordEncoder.encode(new_password));
         obj.setOTP(null);
         userRepository.save(obj);
-        return ResponseEntity.ok().build().getStatusCode().value();
+        return new ResponseEntity<>("password reset",HttpStatus.OK);
     }
 
 

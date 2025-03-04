@@ -8,6 +8,7 @@ import org.apache.coyote.Response;
 import org.apache.logging.log4j.message.SimpleMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.repository.config.RepositoryNameSpaceHandler;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -26,11 +27,11 @@ public class EmailService {
         this.dotenv=dotenv;
         this.userRepository=userRepository;
     }
-    public Integer sendMail(String dest){
+    public ResponseEntity<String> sendMail(String dest){
         User obj=userRepository.findByEmail(dest);
         Random random=new Random();
         if (obj==null){
-            return ResponseEntity.notFound().build().getStatusCode().value();
+            return new ResponseEntity<>("no such user", HttpStatus.NO_CONTENT);
         }
         SimpleMailMessage message=new SimpleMailMessage();
         message.setTo(dest);
@@ -42,6 +43,6 @@ public class EmailService {
         message.setText(String.valueOf(otp));
         mailSender.send(message);
         System.out.println(obj);
-        return ResponseEntity.ok().build().getStatusCode().value();
+        return new ResponseEntity<>("email sent",HttpStatus.OK);
     }
 }
