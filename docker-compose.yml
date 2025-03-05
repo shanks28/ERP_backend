@@ -1,4 +1,12 @@
 services:
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - network
   db:
     image: postgres
     container_name: db

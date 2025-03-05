@@ -67,7 +67,7 @@ public class Auth {
             AuthDTO.LoginResponse response=new AuthDTO.LoginResponse(obj.getEmail(),obj.getRole());
             return new ResponseEntity<>(response,HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("No Such user",HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>("No Such user",HttpStatus.NOT_FOUND);
         }
     }
     public ResponseEntity<String> verifyOtp(String email, String otp){
