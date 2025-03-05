@@ -33,7 +33,7 @@ public class Auth_Controller {
         return authService.register(details);
     }
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthDTO.LoginRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<?> login(@RequestBody AuthDTO.LoginRequest request, HttpServletRequest httpRequest) {
         return authService.login(request,httpRequest);// ROLE and email to be sent to the front end
     }
     @PostMapping("/reset-password")

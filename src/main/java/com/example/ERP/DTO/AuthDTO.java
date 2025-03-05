@@ -25,4 +25,11 @@ public class AuthDTO {
     public static class ResetPassword{
         private String email;
     }
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LoginResponse{
+        private String email;
+        private Role role;
+    }
 }

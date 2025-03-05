@@ -47,7 +47,7 @@ public class Auth {
         return new ResponseEntity<>("User Registered",HttpStatus.OK); //2XX
 
     }
-    public ResponseEntity<String> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest){
+    public ResponseEntity<Object> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest){
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
@@ -64,7 +64,8 @@ public class Auth {
             session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext); //used for RBAC later
             session.setAttribute("user", request.getUsername());
             System.out.println(obj.getLastLogin());
-            return new ResponseEntity<>("User logged in",HttpStatus.OK);
+            AuthDTO.LoginResponse response=new AuthDTO.LoginResponse(obj.getEmail(),obj.getRole());
+            return new ResponseEntity<>(response,HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("No Such user",HttpStatus.NO_CONTENT);
         }
