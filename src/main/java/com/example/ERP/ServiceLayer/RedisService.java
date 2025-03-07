@@ -6,14 +6,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RedisService {
-    private final RedisTemplate<Object,Object> redisTemplate;
-    RedisService(RedisTemplate<Object,Object> redisTemplate){
-        this.redisTemplate=redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    public RedisService(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
-    public void set(Object key,Object value){
-        redisTemplate.opsForValue().set(key,value);
+
+    public void set(String key, String value) {
+        redisTemplate.opsForValue().set(key, value);
     }
-    public Object get(Object key){
+
+    public String get(String key) {
         return redisTemplate.opsForValue().get(key);
     }
 }

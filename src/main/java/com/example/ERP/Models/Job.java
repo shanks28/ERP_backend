@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 
@@ -13,11 +14,17 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Table(name="Job")
 public class Job {
+    public Job(Integer jobId, String customerName, String category, LocalDate localDate){
+        this.jobId=jobId;
+        this.customerName=customerName;
+        this.jobDate=localDate;
+        this.category=category;
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long slNo;
 
-    @Column(name = "jobId")
+    @Column(name = "job_id",nullable = false)
     private Integer jobId;
     @Column(name="jobDate",nullable = false)
     private LocalDate jobDate;
@@ -47,6 +54,9 @@ public class Job {
 
     @Column(name = "closed_date")
     private LocalDate closedDate;
+
+    @Column(name="selling_price")
+    private Integer sellingPrice;
 
     @Column(name = "billing_status")
     private String billingStatus;
