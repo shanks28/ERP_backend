@@ -6,6 +6,7 @@ import com.example.ERP.Repository.JobRepository;
 import org.apache.coyote.Response;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +39,7 @@ public class JobService {
     }
     public ResponseEntity<Object> createJob(JobDTo.CRMEntryRequest request){
         try{
-            String key="".concat(request.getCustomerName().toLowerCase()).concat(String.valueOf(request.getDate()).toLowerCase()).concat(request.getCategory().toLowerCase());
+            String key="".concat(request.getCustomerName().toLowerCase()).concat(String.valueOf(request.getDate())).concat(request.getCategory().toLowerCase());
             String existingJob=(redisService.get(key));
             System.out.println(existingJob);
             if (existingJob!=null) {// this is a job that already exists with similar details
@@ -63,9 +66,10 @@ public class JobService {
                     .map(GrantedAuthority::getAuthority)
                     .toList();
             List<String> unauthorizedFields=new ArrayList<>();
+            // this is to dynamically update all fields if any changes we can just add to list
             List<String> crmAllowedFields=List.of("jobId","customerName","jobDate","category","sellingPrice");
             List<String> operationsAllowedFields=List.of("jobParticulars","jobReference","boeSbNo",
-                    "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","sellingPrice","billingStatus","invoiceNo",
+                    "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","billingStatus","invoiceNo",
                     "invoiceDate","courier_tracking_no","payment_status","remarks",
                     "apekshaInvoiceNo","action");
             Integer slNo=(Integer) request.get("slNo");
@@ -73,20 +77,95 @@ public class JobService {
                 return new ResponseEntity<>("slNo not valid",HttpStatus.BAD_REQUEST);
             }
             Job existingJob=jobRepository.findByslNo(slNo);
-            for(String key:request.keySet()){
-                if(key.equals("slNo")){
+            for(String key:request.keySet()) {
+                if (key.equals("slNo")) {
                     continue;
                 }
-                if(roles.contains("ROLE_CRM")){
+                if (roles.contains("ROLE_CRM")) {
                     if (!crmAllowedFields.contains(key)) {
                         unauthorizedFields.add(key);
                     }
+                } else if (roles.contains("ROLE_OPERATIONS")) {
+                    // For Operations role, only allow updates to operations-specific fields
+                    if (!operationsAllowedFields.contains(key)) {
+                        unauthorizedFields.add(key);
+                    }
+                }
+                if (!unauthorizedFields.isEmpty()) {// if it is no empty there has been a restricted update
+                    return new ResponseEntity<>("Unauthorized updates:" + String.join(",", unauthorizedFields), HttpStatus.BAD_REQUEST);
+                }
+
+            }
+            // if reached here it means the body is correct
+            if (roles.contains("ROLE_CRM")) {
+                if (request.get("jobId") != null) {
+                    existingJob.setJobId((Integer) request.get("jobId"));
+                }
+                if (request.get("customerName") != null) {
+                    existingJob.setCustomerName((String) request.get("customerName"));
+                }
+                if (request.get("jobDate") != null) {
+                    existingJob.setJobDate((LocalDate) request.get("jobDate")); // Assuming it's a Date object
+                }
+                if (request.get("category") != null) {
+                    existingJob.setCategory((String) request.get("category"));
+                }
+                if (request.get("sellingPrice") != null) {
+                    existingJob.setSellingPrice((Integer) request.get("sellingPrice")); // Assuming it's a Double
                 }
             }
-            if(!unauthorizedFields.isEmpty()){
-                return new ResponseEntity<>("Unauthorized updates:"+String.join(",",unauthorizedFields),HttpStatus.BAD_REQUEST);
+            else if (roles.contains("ROLE_OPERATIONS")) {
+                // Update Operations-allowed fields
+                if (request.get("jobParticulars") != null) {
+                    existingJob.setJobParticulars((String) request.get("jobParticulars"));
+                }
+                if (request.get("jobReference") != null) {
+                    existingJob.setJobReference((String) request.get("jobReference"));
+                }
+                if (request.get("boeSbNo") != null) {
+                    existingJob.setBoeSbNo((String) request.get("boeSbNo"));
+                }
+                if (request.get("boeSbDate") != null) {
+                    existingJob.setBoeSbDate((LocalDate) request.get("boeSbDate"));
+                }
+                if (request.get("arrivalDate") != null) {
+                    existingJob.setArrivalDate((LocalDate) request.get("arrivalDate"));
+                }
+                if (request.get("tentativeClosureDate") != null) {
+                    existingJob.setTentativeClosureDate((LocalDate) request.get("tentativeClosureDate"));
+                }
+                if (request.get("closedDate") != null) {
+                    existingJob.setClosedDate((LocalDate) request.get("closedDate"));
+                }
+                if (request.get("billingStatus") != null) {
+                    existingJob.setBillingStatus((String) request.get("billingStatus"));
+                }
+                if (request.get("invoiceNo") != null) {
+                    existingJob.setInvoiceNo((String) request.get("invoiceNo"));
+                }
+                if (request.get("invoiceDate") != null) {
+                    existingJob.setInvoiceDate((LocalDate) request.get("invoiceDate"));
+                }
+                if (request.get("courier_tracking_no") != null) {
+                    existingJob.setCourierTrackingNo((String) request.get("courier_tracking_no"));
+                }
+                if (request.get("payment_status") != null) {
+                    existingJob.setPaymentStatus((String) request.get("payment_status"));
+                }
+                if (request.get("remarks") != null) {
+                    existingJob.setRemarks((String) request.get("remarks"));
+                }
+                if (request.get("apekshaInvoiceNo") != null) {
+                    existingJob.setApekshaInvoiceNo((String) request.get("apekshaInvoiceNo"));
+                }
+                if (request.get("action") != null) {
+                    existingJob.setAction((String) request.get("action"));
+                }
             }
-            return new ResponseEntity<>("Job Updated",HttpStatus.OK);
+            existingJob.setUpdatedBy(principal.getName());
+            existingJob.setUpdatedAt(LocalDateTime.now());
+            jobRepository.save(existingJob);
+            return new ResponseEntity<>("Job Updated", HttpStatus.OK);
         }catch (Exception E){
             return new ResponseEntity<>(E.getLocalizedMessage(),HttpStatus.BAD_REQUEST);
         }
