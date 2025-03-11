@@ -29,7 +29,7 @@ public class SecurityConfig {
         http
                 .cors(cors-> cors.configurationSource(request->{
                     var corsConfig=new CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("localhost:5137"));
+                    corsConfig.setAllowedOrigins(List.of("localhost:5173/"));
                     corsConfig.setAllowCredentials(true);
                     corsConfig.setAllowedMethods(List.of("GET","POST","PUT","OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("*"));
@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/crm/**").hasAnyRole("ADMIN","CRM")
                         .requestMatchers("/billing/**").hasAnyRole("ADMIN","BILLING")
+                        .requestMatchers("/operations/**").hasAnyRole("OPERATIONS","ADMIN")
                         .anyRequest().authenticated() //protect everything else
                 )
                 .formLogin().disable() // Disable default form login

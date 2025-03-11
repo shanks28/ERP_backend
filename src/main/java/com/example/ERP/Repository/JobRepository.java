@@ -6,8 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface JobRepository extends JpaRepository<Job,Long> {
+public interface JobRepository extends JpaRepository<Job,Integer> {
     Job findByJobId(Integer jobId);
     @Query("SELECT COALESCE(MAX(J.jobId),0) From Job J")
     Integer findLatestJobId();
+    Job findByslNo(Integer slNo);
 }

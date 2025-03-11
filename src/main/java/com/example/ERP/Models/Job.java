@@ -14,15 +14,16 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Table(name="Job")
 public class Job {
-    public Job(Integer jobId, String customerName, String category, LocalDate localDate){
+    public Job(Integer jobId, String customerName, String category, LocalDate localDate,Integer sellingPrice){
         this.jobId=jobId;
         this.customerName=customerName;
         this.jobDate=localDate;
         this.category=category;
+        this.sellingPrice=sellingPrice;
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long slNo;
+    private Integer slNo;
 
     @Column(name = "job_id",nullable = false)
     private Integer jobId;

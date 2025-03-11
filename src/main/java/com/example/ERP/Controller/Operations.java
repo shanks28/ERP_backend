@@ -2,24 +2,23 @@ package com.example.ERP.Controller;
 
 import com.example.ERP.Models.Job;
 import com.example.ERP.ServiceLayer.JobService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-@RestController("/operations")
+@RestController
+@RequestMapping("/operations")
 public class Operations {
-    private final JobService crmService;
+    private final JobService jobService;
     public Operations(JobService crmService){
-        this.crmService=crmService;
-    }
-    @GetMapping("/get-all-jobs")
-    public List<Job> getAll(){
-        return crmService.getAllRecords();
+        this.jobService=crmService;
     }
     @GetMapping("/find-job/{jobId}")
     public Job getId(@PathVariable("jobId") Integer jobId){
-        return crmService.findJob(jobId);
+        return jobService.findJob(jobId);
     }
 }

@@ -6,6 +6,7 @@ import com.example.ERP.ServiceLayer.JobService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -15,14 +16,7 @@ public class CRM {
     public CRM(JobService jobService){
         this.jobService=jobService;
     }
-    @GetMapping("/root")
-    public String root(){
-        return "hello man";
-    }
-    @GetMapping("/get-all-jobs")
-    public List<Job> getAll(){
-        return jobService.getAllRecords();
-    }
+
     @GetMapping("/find-job/{jobId}")
     public Job getId(@PathVariable("jobId") Integer jobId) {
         return jobService.findJob(jobId);
