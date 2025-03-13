@@ -3,6 +3,7 @@ package com.example.ERP.ServiceLayer;
 import com.example.ERP.DTO.JobDTo;
 import com.example.ERP.Models.Job;
 import com.example.ERP.Repository.JobRepository;
+import jakarta.transaction.Transactional;
 import org.apache.coyote.Response;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
@@ -37,28 +38,33 @@ public class JobService {
     public Job findJob(Integer jobId){
         return jobRepository.findByJobId(jobId);
     }
-    public ResponseEntity<Object> createJob(JobDTo.CRMEntryRequest request){
+    @Transactional
+    public ResponseEntity<Object> createJob(JobDTo.CRMEntryRequest request,Principal principal){
         try{
+            System.out.println("Createjob");
             String key="".concat(request.getCustomerName().toLowerCase()).concat(String.valueOf(request.getDate())).concat(request.getCategory().toLowerCase());
+            System.out.println(key);
             String existingJob=(redisService.get(key));
             System.out.println(existingJob);
             if (existingJob!=null) {// this is a job that already exists with similar details
                 Job job=new Job(Integer.parseInt(existingJob),request.getCustomerName(),request.getCategory(),request.getDate(),request.getSellingPrice());
+                job.setUpdatedBy(principal.getName());
                 jobRepository.save(job);// created job if exists and update database
             }
             else{// jobid does not exist in the redis container so need to generate a new one and update redis
                 Integer lastJobId=jobRepository.findLatestJobId();
                 Job job=new Job(lastJobId+1,request.getCustomerName(),request.getCategory(),request.getDate(),request.getSellingPrice());
+                job.setUpdatedBy(principal.getName());
                 jobRepository.save(job);
-                System.out.println("job saved");
                 redisService.set(key,String.valueOf(lastJobId+1));
             }
             return new ResponseEntity<>("Job created", HttpStatus.OK);
 
         } catch (RuntimeException e) {
-            return new ResponseEntity<>("Internal error",HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @Transactional
     public ResponseEntity<String> updateJob(Map<String,Object> request, Principal principal){
         try{
             Authentication auth= SecurityContextHolder.getContext().getAuthentication();
@@ -163,7 +169,6 @@ public class JobService {
                 }
             }
             existingJob.setUpdatedBy(principal.getName());
-            existingJob.setUpdatedAt(LocalDateTime.now());
             jobRepository.save(existingJob);
             return new ResponseEntity<>("Job Updated", HttpStatus.OK);
         }catch (Exception E){

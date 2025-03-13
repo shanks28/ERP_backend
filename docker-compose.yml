@@ -5,8 +5,13 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD","redis-cli","ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
-      - network
+      - network1
   db:
     image: postgres
     container_name: db
@@ -17,13 +22,13 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
-    networks:
-      - network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U root -d db"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - network1
 
   springboot-app:
     build:
@@ -32,17 +37,25 @@ services:
     container_name: app
     restart: always
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+      - redis
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: gaunterodim68@gmail.com
+      MAIL_PASSWORD: ahwy txka enru wgeb
+      SPRING_PROFILES_ACTIVE: debug
     ports:
       - "8080:8080"
     networks:
-      - network
-
+      - network1
 networks:
-  network:
+  network1:
+    name: erp_network1
+    driver: bridge

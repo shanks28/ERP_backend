@@ -92,4 +92,12 @@ public class Job {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    @Version
+    private Long version;
+
+    @PreUpdate
+    @PrePersist
+    public void onUpdate(){
+        this.updatedAt=LocalDateTime.now();
+    }
 }

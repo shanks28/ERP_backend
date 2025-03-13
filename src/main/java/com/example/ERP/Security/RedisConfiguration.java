@@ -1,23 +1,38 @@
 package com.example.ERP.Security;
 
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfiguration {
+
+    @Value("${spring.redis.host}") // Inject Redis host from application.properties/yml
+    private String redisHost;
+
+    @Value("${spring.redis.port}") // Inject Redis port from application.properties/yml
+    private int redisPort;
+
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
+        return new LettuceConnectionFactory(config);
+    }
+
     @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        System.out.println("Setting up Connection");
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new StringRedisSerializer());
         template.afterPropertiesSet();
+        System.out.println("Connection set up ");
         return template;
     }
-
 }
