@@ -65,6 +65,15 @@ public class JobService {
             return new ResponseEntity<>(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    private LocalDate parseDate(Object value) {
+        if (value instanceof String) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            return LocalDate.parse((String) value, formatter);
+        } else if (value instanceof LocalDate) {
+            return (LocalDate) value;
+        }
+        throw new IllegalArgumentException("Invalid date format");
+    }
     @Transactional
     public ResponseEntity<String> updateJob(Map<String,Object> request, Principal principal){
         try{
@@ -93,7 +102,6 @@ public class JobService {
                         unauthorizedFields.add(key);
                     }
                 } else if (roles.contains("ROLE_OPERATIONS")) {
-                    // For Operations role, only allow updates to operations-specific fields
                     if (!operationsAllowedFields.contains(key)) {
                         unauthorizedFields.add(key);
                     }
@@ -122,6 +130,11 @@ public class JobService {
                 }
                 if (request.get("sellingPrice") != null) {
                     existingJob.setSellingPrice((Integer) request.get("sellingPrice")); // Assuming it's a Double
+                }
+                if(request.get("remarks")!=null){
+                    String existingRemarks= existingJob.getRemarks();
+                    String newRemarks=(String)request.get("remarks");
+                    existingJob.setRemarks(existingRemarks.concat(newRemarks));
                 }
             }
             else if (roles.contains("ROLE_OPERATIONS")) {
@@ -163,7 +176,9 @@ public class JobService {
                     existingJob.setPaymentStatus((String) request.get("payment_status"));
                 }
                 if (request.get("remarks") != null) {
-                    existingJob.setRemarks((String) request.get("remarks"));
+                    String existingRemarks= existingJob.getRemarks();
+                    String newRemarks=(String)request.get("remarks");
+                    existingJob.setRemarks(existingRemarks.concat(newRemarks));
                 }
                 if (request.get("apekshaInvoiceNo") != null) {
                     existingJob.setApekshaInvoiceNo((String) request.get("apekshaInvoiceNo"));
@@ -171,6 +186,33 @@ public class JobService {
                 if (request.get("action") != null) {
                     existingJob.setAction((String) request.get("action"));
                 }
+            }
+            else if(roles.contains("ROLE_ADMIN")){
+                request.forEach((key,value)->{
+                    if (value==null|| key.equals("slNo")) return;
+                    switch (key){
+                        case "jobId"-> existingJob.setJobId((Integer) value);
+                        case "customerName" -> existingJob.setCustomerName((String) value);
+                        case "jobDate" -> existingJob.setJobDate(parseDate(value));
+                        case "category" -> existingJob.setCategory((String) value);
+                        case "sellingPrice" -> existingJob.setSellingPrice((Integer) value);
+                        case "jobParticulars" -> existingJob.setJobParticulars((String) value);
+                        case "jobReference" -> existingJob.setJobReference((String) value);
+                        case "boeSbNo" -> existingJob.setBoeSbNo((String) value);
+                        case "boeSbDate" -> existingJob.setBoeSbDate(parseDate(value));
+                        case "arrivalDate" -> existingJob.setArrivalDate(parseDate(value));
+                        case "tentativeClosureDate" -> existingJob.setTentativeClosureDate(parseDate(value));
+                        case "closedDate" -> existingJob.setClosedDate(parseDate(value));
+                        case "billingStatus" -> existingJob.setBillingStatus((String) value);
+                        case "invoiceNo" -> existingJob.setInvoiceNo((String) value);
+                        case "invoiceDate" -> existingJob.setInvoiceDate(parseDate(value));
+                        case "courier_tracking_no" -> existingJob.setCourierTrackingNo((String) value);
+                        case "payment_status" -> existingJob.setPaymentStatus((String) value);
+                        case "remarks" -> existingJob.setRemarks((String) value);
+                        case "apekshaInvoiceNo" -> existingJob.setApekshaInvoiceNo((String) value);
+                        case "action" -> existingJob.setAction((String) value);
+                    }
+                });
             }
             existingJob.setUpdatedBy(principal.getName());
             jobRepository.save(existingJob);
