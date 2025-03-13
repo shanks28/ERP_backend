@@ -17,10 +17,6 @@ public class CRM {
         this.jobService=jobService;
     }
 
-    @GetMapping("/find-job/{jobId}")
-    public Job getId(@PathVariable("jobId") Integer jobId) {
-        return jobService.findJob(jobId);
-    }
     @PostMapping("/create-job")
     public ResponseEntity<Object> createJob(@RequestBody JobDTo.CRMEntryRequest request,Principal principal){
         return jobService.createJob(request,principal);

@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/crm/**").hasAnyRole("ADMIN","CRM")
                         .requestMatchers("/billing/**").hasAnyRole("ADMIN","BILLING")
                         .requestMatchers("/operations/**").hasAnyRole("OPERATIONS","ADMIN")
+                        .requestMatchers("/job/**").hasAnyRole("ADMIN","CRM","OPERATIONS","BILLING")
                         .anyRequest().authenticated() //protect everything else
                 )
                 .formLogin().disable() // Disable default form login

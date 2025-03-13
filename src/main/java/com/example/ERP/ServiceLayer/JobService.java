@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -111,7 +112,10 @@ public class JobService {
                     existingJob.setCustomerName((String) request.get("customerName"));
                 }
                 if (request.get("jobDate") != null) {
-                    existingJob.setJobDate((LocalDate) request.get("jobDate")); // Assuming it's a Date object
+                    String date=(String)request.get("jobDate");
+                    DateTimeFormatter formatter=DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                    LocalDate localDate=LocalDate.parse(date,formatter);
+                    existingJob.setJobDate(localDate);
                 }
                 if (request.get("category") != null) {
                     existingJob.setCategory((String) request.get("category"));

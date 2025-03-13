@@ -17,8 +17,4 @@ public class Operations {
     public Operations(JobService crmService){
         this.jobService=crmService;
     }
-    @GetMapping("/find-job/{jobId}")
-    public Job getId(@PathVariable("jobId") Integer jobId){
-        return jobService.findJob(jobId);
-    }
 }
