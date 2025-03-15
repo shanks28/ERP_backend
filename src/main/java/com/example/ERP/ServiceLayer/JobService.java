@@ -106,10 +106,10 @@ public class JobService {
                         unauthorizedFields.add(key);
                     }
                 }
-                if (!unauthorizedFields.isEmpty()) {// if it is no empty there has been a restricted update
-                    return new ResponseEntity<>("Unauthorized updates:" + String.join(",", unauthorizedFields), HttpStatus.BAD_REQUEST);
-                }
 
+            }
+            if (!unauthorizedFields.isEmpty()) {// if it is no empty there has been a restricted update
+                return new ResponseEntity<>("Unauthorized updates:" + String.join(",", unauthorizedFields), HttpStatus.BAD_REQUEST);
             }
             // if reached here it means the body is correct
             if (roles.contains("ROLE_CRM")) {

@@ -5,6 +5,7 @@ import com.example.ERP.Models.User;
 import com.example.ERP.Repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.coyote.Response;
 import org.springframework.cglib.core.Local;
@@ -17,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -47,27 +50,33 @@ public class Auth {
         return new ResponseEntity<>("User Registered",HttpStatus.OK); //2XX
 
     }
-    public ResponseEntity<Object> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest){
+    public ResponseEntity<Object> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
-            User obj=userRepository.findByUserName(request.getUsername());
-            LocalDateTime localDateTime=LocalDateTime.now();
-            DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-            String formattedDate=localDateTime.format(dateTimeFormatter);
+
+            User obj = userRepository.findByUserName(request.getUsername());
+            LocalDateTime localDateTime = LocalDateTime.now();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            String formattedDate = localDateTime.format(dateTimeFormatter);
             obj.setLastLogin(formattedDate);
             userRepository.save(obj);
-            SecurityContext securityContext = SecurityContextHolder.getContext();
+
+            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             securityContext.setAuthentication(authentication);
+            SecurityContextHolder.setContext(securityContext);
+
+            SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+            securityContextRepository.saveContext(securityContext, httpRequest, httpResponse);
+
             HttpSession session = httpRequest.getSession(true);
-            session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext); //used for RBAC later
-            session.setAttribute("user", request.getUsername());
-            System.out.println(obj.getLastLogin());
-            AuthDTO.LoginResponse response=new AuthDTO.LoginResponse(obj.getEmail(),obj.getRole());
-            return new ResponseEntity<>(response,HttpStatus.OK);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+
+            AuthDTO.LoginResponse response = new AuthDTO.LoginResponse(obj.getEmail(), obj.getRole());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>("No Such user",HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
     public ResponseEntity<String> verifyOtp(String email, String otp){

@@ -9,34 +9,47 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import java.util.Arrays;
 
 @Configuration
-//can be considered as middleware ig
 public class SecurityConfig {
-    @Bean //IOC purpose
-    public PasswordEncoder passwordEncoder(){
+    @Bean
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    @Bean//IOC purpose
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+        configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors-> cors.configurationSource(request->{
-                    var corsConfig=new CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("localhost:5173/"));
-                    corsConfig.setAllowCredentials(true);
-                    corsConfig.setAllowedMethods(List.of("GET","POST","PUT","OPTIONS","PATCH"));
-                    corsConfig.setAllowedHeaders(List.of("*"));
-                    corsConfig.setMaxAge(3600L);
-                    return corsConfig;
-                }))
-                .csrf().disable()
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/login",
                                 "/swagger-ui/**",
@@ -48,16 +61,16 @@ public class SecurityConfig {
                         .requestMatchers("/billing/**").hasAnyRole("ADMIN","BILLING")
                         .requestMatchers("/operations/**").hasAnyRole("OPERATIONS","ADMIN")
                         .requestMatchers("/job/**").hasAnyRole("ADMIN","CRM","OPERATIONS","BILLING")
-                        .anyRequest().authenticated() //protect everything else
+                        .anyRequest().authenticated()
                 )
-                .formLogin().disable() // Disable default form login
-                .logout()
-                .logoutUrl("/auth/logout")
-                .logoutSuccessUrl("/auth")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll(); // Add permitAll() here to fix the logout issue
+                .formLogin(form -> form.disable())
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/auth")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll());
+
         return http.build();
     }
-
 }

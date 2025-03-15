@@ -37,6 +37,4 @@ public class User {
 
     @Column(nullable = true,name = "last_login")
     private String lastLogin;
-
-
 }

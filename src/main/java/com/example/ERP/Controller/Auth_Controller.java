@@ -5,6 +5,7 @@ import com.example.ERP.Models.User;
 import com.example.ERP.ServiceLayer.Auth;
 import com.example.ERP.ServiceLayer.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Email;
 import jakarta.websocket.server.PathParam;
 import org.apache.coyote.Response;
@@ -33,8 +34,8 @@ public class Auth_Controller {
         return authService.register(details);
     }
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthDTO.LoginRequest request, HttpServletRequest httpRequest) {
-        return authService.login(request,httpRequest);// ROLE and email to be sent to the front end
+    public ResponseEntity<?> login(@RequestBody AuthDTO.LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
+        return authService.login(request,httpRequest,response);// ROLE and email to be sent to the front end
     }
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody AuthDTO.ResetPassword request) {
