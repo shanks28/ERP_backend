@@ -9,15 +9,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 public class SecurityConfig {
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -31,10 +32,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        // Allow the frontend origin. If you later deploy your frontend elsewhere, update this accordingly.
+        configuration.setAllowedOriginPatterns(Collections.singletonList("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+        // Expose "Set-Cookie" so that the frontend can see it if needed (e.g., for further requests with credentials)
         configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));
+        // Must be true if your frontend will send credentials (cookies) with requests
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
@@ -48,8 +52,8 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                // We use session-based authentication so a session is always created.
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/login",
                                 "/swagger-ui/**",
@@ -57,10 +61,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api-docs/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/crm/**").hasAnyRole("ADMIN","CRM")
-                        .requestMatchers("/billing/**").hasAnyRole("ADMIN","BILLING")
-                        .requestMatchers("/operations/**").hasAnyRole("OPERATIONS","ADMIN")
-                        .requestMatchers("/job/**").hasAnyRole("ADMIN","CRM","OPERATIONS","BILLING")
+                        .requestMatchers("/crm/**").hasAnyRole("ADMIN", "CRM")
+                        .requestMatchers("/billing/**").hasAnyRole("ADMIN", "BILLING")
+                        .requestMatchers("/operations/**").hasAnyRole("OPERATIONS", "ADMIN")
+                        .requestMatchers("/job/**").hasAnyRole("ADMIN", "CRM", "OPERATIONS", "BILLING")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
