@@ -68,29 +68,23 @@ public class Auth {
             user.setLastLogin(localDateTime.format(dateTimeFormatter));
             userRepository.save(user);
 
-            // Set the security context
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             securityContext.setAuthentication(authentication);
             SecurityContextHolder.setContext(securityContext);
 
-            // Save security context in session using HttpSessionSecurityContextRepository
             SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
             securityContextRepository.saveContext(securityContext, httpRequest, httpResponse);
 
-            // Create or retrieve session and attach security context
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
 
-            // Create session cookie with proper settings
             Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
-            sessionCookie.setHttpOnly(true); // enhance security by preventing client-side access
-            sessionCookie.setSecure(httpRequest.isSecure()); // mark secure if connection is secure
+            sessionCookie.setHttpOnly(true);
+            sessionCookie.setSecure(httpRequest.isSecure());
             sessionCookie.setPath("/");
-            // Note: Setting SameSite may require additional handling depending on your container
-            // sessionCookie.setAttribute("SameSite", "None");
+
             httpResponse.addCookie(sessionCookie);
 
-            // Construct and return the custom response
             AuthDTO.LoginResponse response = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
