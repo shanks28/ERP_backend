@@ -32,13 +32,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow the frontend origin. If you later deploy your frontend elsewhere, update this accordingly.
         configuration.setAllowedOriginPatterns(Collections.singletonList("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
-        // Expose "Set-Cookie" so that the frontend can see it if needed (e.g., for further requests with credentials)
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
         configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));
-        // Must be true if your frontend will send credentials (cookies) with requests
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
