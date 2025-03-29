@@ -60,6 +60,9 @@ public class Job {
     @Column(name="selling_price")
     private Integer sellingPrice;
 
+    @Column(name="cost_price")
+    private Integer costPrice;
+
     @Column(name = "billing_status")
     private String billingStatus;
 

@@ -1,13 +1,12 @@
 package com.example.ERP.ServiceLayer;
 
 import com.example.ERP.DTO.JobDTo;
+import com.example.ERP.DTO.WithoutCostPriceDTO;
 import com.example.ERP.Models.Job;
 import com.example.ERP.Repository.JobRepository;
+import com.example.ERP.Repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.apache.coyote.Response;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
-import org.springframework.cglib.core.Local;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,24 +16,33 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class JobService {
     private final JobRepository jobRepository;
+    private final UserRepository userRepository;
     private final RedisService redisService;
-    JobService(JobRepository jobRepository, RedisService redisService){
+    JobService(JobRepository jobRepository, RedisService redisService, UserRepository userRepository){
         this.redisService=redisService;
         this.jobRepository=jobRepository;
+        this.userRepository=userRepository;
     }
-    public List<Job> getAllRecords(){
-        return jobRepository.findAll();
+    public List<?> getAllRecords(Principal principal){
+        String role=userRepository.findByUserName(principal.getName()).getRole().toString();
+        List<Job>jobs=jobRepository.findAll();
+        System.out.println(role);
+        if(role.equals("ADMIN")||role.equals("BILLING")){
+            return jobs;
+        }
+        return jobs.stream().map(job->{
+            WithoutCostPriceDTO dto=new WithoutCostPriceDTO();
+            BeanUtils.copyProperties(job,dto);
+            return dto;
+        }).toList();
     }
     public Job findJob(Integer jobId){
         return jobRepository.findByJobId(jobId);

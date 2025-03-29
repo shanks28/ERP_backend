@@ -22,7 +22,7 @@ public class JobController { // this separate controller makes the job of the fr
         return jobService.updateJob(request,principal);
     }
     @GetMapping("/get-all-jobs")
-    public List<Job> getAllJobs(){
-        return jobService.getAllRecords();
+    public List<?> getAllJobs(Principal principal){
+        return jobService.getAllRecords(principal);
     }
 }

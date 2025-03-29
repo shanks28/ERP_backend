@@ -1,8 +1,11 @@
 package com.example.ERP.DTO;
 
+import com.example.ERP.Controller.Admin;
+import com.example.ERP.Models.Job;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -21,4 +24,5 @@ public class JobDTo {
         private String category;
         private Integer sellingPrice;
     }
+
 }
