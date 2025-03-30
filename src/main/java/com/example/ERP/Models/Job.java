@@ -1,5 +1,6 @@
 package com.example.ERP.Models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -70,6 +71,7 @@ public class Job {
     private String invoiceNo;
 
     @Column(name = "invoice_date")
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     private LocalDate invoiceDate;
 
     @Column(name = "courier_tracking_no")

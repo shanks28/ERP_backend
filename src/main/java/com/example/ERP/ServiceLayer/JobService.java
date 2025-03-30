@@ -40,7 +40,7 @@ public class JobService {
         }
         return jobs.stream().map(job->{
             WithoutCostPriceDTO dto=new WithoutCostPriceDTO();
-            BeanUtils.copyProperties(job,dto);
+            BeanUtils.copyProperties(job,dto);//used to filter
             return dto;
         }).toList();
     }
@@ -96,6 +96,8 @@ public class JobService {
                     "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","billingStatus","invoiceNo",
                     "invoiceDate","courier_tracking_no","payment_status","remarks",
                     "apekshaInvoiceNo","action");
+            List<String> billingAllowedFields=List.of("payment_status","remarks","sellingPrice","costPrice",
+                    "invoiceNo","invoiceDate");
             Integer slNo=(Integer) request.get("slNo");
             if (slNo==null){
                 return new ResponseEntity<>("slNo not valid",HttpStatus.BAD_REQUEST);
@@ -113,13 +115,17 @@ public class JobService {
                     if (!operationsAllowedFields.contains(key)) {
                         unauthorizedFields.add(key);
                     }
+                } else if (roles.contains("ROLE_BILLING")) {
+                    if(!billingAllowedFields.contains(key)){
+                        unauthorizedFields.add(key);
+                    }
                 }
 
             }
             if (!unauthorizedFields.isEmpty()) {// if it is no empty there has been a restricted update
                 return new ResponseEntity<>("Unauthorized updates:" + String.join(",", unauthorizedFields), HttpStatus.BAD_REQUEST);
             }
-            // if reached here it means the body is correct
+            // if reached here it means the  request body is correct
             if (roles.contains("ROLE_CRM")) {
                 if (request.get("jobId") != null) {
                     existingJob.setJobId((Integer) request.get("jobId"));
@@ -204,6 +210,7 @@ public class JobService {
                         case "jobDate" -> existingJob.setJobDate(parseDate(value));
                         case "category" -> existingJob.setCategory((String) value);
                         case "sellingPrice" -> existingJob.setSellingPrice((Integer) value);
+                        case "costPrice"->existingJob.setCostPrice((Integer)value);
                         case "jobParticulars" -> existingJob.setJobParticulars((String) value);
                         case "jobReference" -> existingJob.setJobReference((String) value);
                         case "boeSbNo" -> existingJob.setBoeSbNo((String) value);
@@ -221,6 +228,21 @@ public class JobService {
                         case "action" -> existingJob.setAction((String) value);
                     }
                 });
+            } else if (roles.contains("ROLE_BILLING")) {
+                request.forEach((key,value)->{
+                    if(key.equals("slNo")||value==null) return;
+                    switch(key){
+                        case "sellingPrice"->existingJob.setSellingPrice((Integer) value);
+                        case "remarks"->existingJob.setRemarks((String) value);
+                        case "costPrice"->existingJob.setCostPrice((Integer) value);
+                        case "billingStatus"->existingJob.setBillingStatus((String) value);
+                        case "invoiceNo"->existingJob.setInvoiceNo((String)value);
+                        case "invoiceDate"->existingJob.setInvoiceDate((LocalDate) value);
+                    }
+                }
+                )
+                ;
+
             }
             existingJob.setUpdatedBy(principal.getName());
             jobRepository.save(existingJob);
