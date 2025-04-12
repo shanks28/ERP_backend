@@ -20,7 +20,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+/*
+timesheets
+*/
 @Service
 public class JobService {
     private final JobRepository jobRepository;
@@ -122,7 +124,7 @@ public class JobService {
                 }
 
             }
-            if (!unauthorizedFields.isEmpty()) {// if it is no empty there has been a restricted update
+            if (!unauthorizedFields.isEmpty()) {// if it is not empty there has been a restricted update
                 return new ResponseEntity<>("Unauthorized updates:" + String.join(",", unauthorizedFields), HttpStatus.BAD_REQUEST);
             }
             // if reached here it means the  request body is correct

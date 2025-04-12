@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WithoutCostPriceDTO {
+    private Integer slNo;
     private Integer jobId;
     private LocalDate jobDate;
     private String category;
