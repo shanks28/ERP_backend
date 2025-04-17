@@ -115,4 +115,3 @@ For questions or support, please contact [gaunterodim68@gmail.com].
 
 - Replace placeholder values (like SMTP credentials, database info, and contact email) with your actual project details.
 - Add or adjust API endpoints as your project evolves.
-- Place this file at `d:\ERP\README.md` in your repository root.
