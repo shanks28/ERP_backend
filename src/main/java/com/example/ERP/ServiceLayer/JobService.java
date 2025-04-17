@@ -5,6 +5,8 @@ import com.example.ERP.DTO.WithoutCostPriceDTO;
 import com.example.ERP.Models.Job;
 import com.example.ERP.Repository.JobRepository;
 import com.example.ERP.Repository.UserRepository;
+import com.example.ERP.Repository.jobStatusRepository;
+
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -13,7 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
+import com.example.ERP.Models.*;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,15 +30,17 @@ public class JobService {
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
     private final RedisService redisService;
-    JobService(JobRepository jobRepository, RedisService redisService, UserRepository userRepository){
+    private final jobStatusRepository jobStatusRepository;
+    
+    JobService(JobRepository jobRepository, RedisService redisService, UserRepository userRepository,jobStatusRepository jobStatusRepository){
         this.redisService=redisService;
         this.jobRepository=jobRepository;
         this.userRepository=userRepository;
+        this.jobStatusRepository=jobStatusRepository;
     }
     public List<?> getAllRecords(Principal principal){
         String role=userRepository.findByUserName(principal.getName()).getRole().toString();
         List<Job>jobs=jobRepository.findAll();
-        System.out.println(role);
         if(role.equals("ADMIN")||role.equals("BILLING")){
             return jobs;
         }
@@ -52,23 +56,29 @@ public class JobService {
     @Transactional
     public ResponseEntity<Object> createJob(JobDTo.CRMEntryRequest request,Principal principal){
         try{
-            System.out.println("Createjob");
             String key="".concat(request.getCustomerName().toLowerCase()).concat(String.valueOf(request.getDate())).concat(request.getCategory().toLowerCase());
-            System.out.println(key);
             String existingJob=(redisService.get(key));
-            System.out.println(existingJob);
+            Job job;
             if (existingJob!=null) {// this is a job that already exists with similar details
-                Job job=new Job(Integer.parseInt(existingJob),request.getCustomerName(),request.getCategory(),request.getDate(),request.getSellingPrice());
+                job=new Job(Integer.parseInt(existingJob),request.getCustomerName(),
+                request.getCategory(),request.getDate(),request.getSellingPrice());
+
                 job.setUpdatedBy(principal.getName());
                 jobRepository.save(job);// created job if exists and update database
             }
             else{// jobid does not exist in the redis container so need to generate a new one and update redis
                 Integer lastJobId=jobRepository.findLatestJobId();
-                Job job=new Job(lastJobId+1,request.getCustomerName(),request.getCategory(),request.getDate(),request.getSellingPrice());
+                job=new Job(lastJobId+1,request.getCustomerName(),request.getCategory(),request.getDate(),request.getSellingPrice());
                 job.setUpdatedBy(principal.getName());
                 jobRepository.save(job);
                 redisService.set(key,String.valueOf(lastJobId+1));
             }
+            JobStatus jobStatus=new JobStatus();
+            jobStatus.setJob(job);
+            jobStatus.setBillingStatus("STARTED");
+            jobStatus.setCrmStatus("STARTED");
+            jobStatus.setOperationsStatus("STARTED");
+            jobStatusRepository.save(jobStatus);
             return new ResponseEntity<>("Job created", HttpStatus.OK);
 
         } catch (RuntimeException e) {

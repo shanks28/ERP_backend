@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface jobStatusRepository extends JpaRepository<JobStatus, Integer> {
     
-    JobStatus findByJobSlNo(int slNo);
+    JobStatus findByJob_SlNo(Integer slNo);
+    JobStatus findByJobSlNo(Integer slNo);
 }

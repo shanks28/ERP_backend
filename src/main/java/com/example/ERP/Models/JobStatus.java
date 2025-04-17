@@ -10,13 +10,14 @@ import lombok.*;
 @Table(name="JobStatus")
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class JobStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
     @OneToOne
-    @JoinColumn(name="job_slNo",referencedColumnName = "slNo",unique = true)
+    @JoinColumn(name="job_sl_no",referencedColumnName = "slNo",unique = true)
     private Job job;
     
     @Column(name="crmStatus")
@@ -24,10 +25,14 @@ public class JobStatus {
 
     @Column(name="billingStatus")
     private String billingStatus;
-
+// CRM->OPERATION->BILLIING
     @Column(name="operationsStatus")
     private String operationsStatus;
-    
+    // User goes to the category field to enter details at the same time it should make an API call to the cat table and 
+    //send all availaible cats in addition to whatever is there .
+    // 1) ADD (POST)
+    // 2)GET (ALL_AVAILAIBLE)
+    //  3) PATCH(UPDATE/DELETE) 
     @Column(name="updatedAt")
     private LocalDateTime updatedAt;
     

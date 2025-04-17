@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.cglib.core.Local;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="Job")
+@ToString
 public class Job {
     public Job(Integer jobId, String customerName, String category, LocalDate localDate,Integer sellingPrice){
         this.jobId=jobId;
