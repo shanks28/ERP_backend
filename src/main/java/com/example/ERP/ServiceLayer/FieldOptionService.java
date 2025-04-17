@@ -14,13 +14,10 @@ public class FieldOptionService {
     FieldOptionService(FieldOptionRepository fieldOptionRepository) {
         this.fieldOptionRepository = fieldOptionRepository;
     }
+    
     public List<?> getFieldValues(String fieldName){
         try{
-        List<String> response=new ArrayList<>();
         List<String> fieldOptions=fieldOptionRepository.findByFieldName(fieldName);
-        // for(FieldOptions op:fieldOptions){
-        //     response.add(op.getFieldValue());
-        // }
         return fieldOptions;
         }catch(Exception e){
             return new ArrayList<>(Arrays.asList(e));
