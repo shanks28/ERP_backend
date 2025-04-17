@@ -15,12 +15,16 @@ public class FieldOptionService {
         this.fieldOptionRepository = fieldOptionRepository;
     }
     public List<?> getFieldValues(String fieldName){
+        try{
         List<String> response=new ArrayList<>();
-        List<FieldOptions> fieldOptions=fieldOptionRepository.findByFieldName(fieldName);
-        for(FieldOptions op:fieldOptions){
-            response.add(op.getFieldValue());
+        List<String> fieldOptions=fieldOptionRepository.findByFieldName(fieldName);
+        // for(FieldOptions op:fieldOptions){
+        //     response.add(op.getFieldValue());
+        // }
+        return fieldOptions;
+        }catch(Exception e){
+            return new ArrayList<>(Arrays.asList(e));
         }
-        return response;
 
     }
     @Transactional
@@ -28,6 +32,10 @@ public class FieldOptionService {
         try{
             String fieldName=request.get("fieldName").toLowerCase();
             String fieldValue=request.get("fieldValue").toLowerCase();
+            List<String> existing_options=fieldOptionRepository.findByFieldName(fieldName);
+            if(existing_options.contains(fieldValue)){
+                return new ResponseEntity<>("Field Value already exists",HttpStatus.BAD_REQUEST);
+            }
             FieldOptions option=new FieldOptions();
             option.setFieldName(fieldName);
             option.setFieldValue(fieldValue);
