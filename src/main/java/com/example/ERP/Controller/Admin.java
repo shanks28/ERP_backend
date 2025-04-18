@@ -22,12 +22,16 @@ public class Admin {
         this.authService=authService;
     }
 
-    @GetMapping("/reset")
-    public String root(){
-        return adminService.sendEmail();
-    }
+    // @GetMapping("/reset")
+    // public String root(){
+    //     return adminService.sendEmail();
+    // }
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User details){
         return authService.register(details);
+    }
+    @GetMapping("/all-users")
+    public ResponseEntity<?> getAllUsers(){
+        return adminService.getAllUsers();
     }
 }

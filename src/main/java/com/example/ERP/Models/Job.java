@@ -31,6 +31,7 @@ public class Job {
     @Column(name = "job_id",nullable = false)
     private Integer jobId;
     @Column(name="jobDate",nullable = false)
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     private LocalDate jobDate;
     @Column(name = "category", nullable = false)
     private String category;
@@ -48,14 +49,18 @@ public class Job {
     private String boeSbNo;
 
     @Column(name = "boe_sb_date")
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     private LocalDate boeSbDate;
 
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     @Column(name = "arrival_date")
     private LocalDate arrivalDate;
 
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     @Column(name = "tentative_closure_date")
     private LocalDate tentativeClosureDate;
-
+    
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     @Column(name = "closed_date")
     private LocalDate closedDate;
 
@@ -88,6 +93,7 @@ public class Job {
     private String apekshaInvoiceNo;
 
     @Column(name = "date_of_courier")
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     private LocalDate dateOfCourier;
 
     @Column(name = "Action")
@@ -97,7 +103,9 @@ public class Job {
     private String updatedBy;
 
     @Column(name = "updated_at")
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy 'T' HH:mm:ss")
     private LocalDateTime updatedAt;
+
     @Version
     private Long version;
 

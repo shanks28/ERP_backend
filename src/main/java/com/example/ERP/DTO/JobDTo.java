@@ -22,6 +22,7 @@ public class JobDTo {
         private LocalDate date;
 
         private String category;
+        
         private Integer sellingPrice;
     }
 
