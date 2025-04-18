@@ -23,6 +23,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{secrets.username}}/ERP:latest
+          tags: ${{secrets.username}}/erp:latest
     
     
