@@ -19,10 +19,12 @@ public class JobStatusService {
     private final jobStatusRepository jobStatusRepository;
     private final UserRepository userRepository;
     private final RedisService redisService;
-    JobStatusService(jobStatusRepository jobStatusRepository, UserRepository userRepository,RedisService redisService) {
+    private final EmailService emailService;
+    JobStatusService(EmailService emailService,jobStatusRepository jobStatusRepository, UserRepository userRepository,RedisService redisService) {
         this.jobStatusRepository = jobStatusRepository;
         this.userRepository = userRepository;
         this.redisService=redisService;
+        this.emailService=emailService;
     }
     public ResponseEntity<?> getJobStatus(int slNo) {
         try{
@@ -59,6 +61,17 @@ public class JobStatusService {
                 jobStatus.setOperationsStatus(jobStatusUpdateDTO.getOperationsStatus()); 
             }
             jobStatusRepository.save(jobStatus);
+            boolean isCompleted=false;
+            if(jobStatus.getCrmStatus().equalsIgnoreCase("Completed")
+            || jobStatus.getBillingStatus().equalsIgnoreCase("Completed")
+            || jobStatus.getOperationsStatus().equalsIgnoreCase("Completed")){
+                isCompleted=true;
+            }
+            if(isCompleted){
+                //send mail to the admins
+                emailService.sendEmailNotification(jobStatus);//sends current job status
+
+            }
             return new ResponseEntity<>("Job Updated",HttpStatus.OK);
         }catch(Exception e){
             return new ResponseEntity<>(e.toString(),HttpStatus.INTERNAL_SERVER_ERROR);

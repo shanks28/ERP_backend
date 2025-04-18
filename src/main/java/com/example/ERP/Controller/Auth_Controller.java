@@ -29,10 +29,7 @@ public class Auth_Controller {
     public Integer root(){
         return ResponseEntity.ok().build().getStatusCode().value();
     }
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User details){
-        return authService.register(details);
-    }
+    
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthDTO.LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
         return authService.login(request,httpRequest,response);// ROLE and email to be sent to the front end
@@ -48,5 +45,9 @@ public class Auth_Controller {
     @PostMapping("/update-password")
     public ResponseEntity<String> resetPassword(@RequestBody Map<String,String> request){
         return authService.resetPassword(request.get("email"),request.get("new_password"));
+    }
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody User details){
+        return authService.register(details);
     }
 }
