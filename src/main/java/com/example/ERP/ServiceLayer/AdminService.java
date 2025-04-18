@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 
@@ -29,5 +29,17 @@ public class AdminService {
                 return dto;}
                 ).toList();
         return new ResponseEntity<>(response,HttpStatus.OK);         
+    }
+    @Transactional
+    public ResponseEntity<?> deleteUser(String userName){
+        try{
+            User user=userRepository.findByUserName(userName);
+            if (user==null){
+                return new ResponseEntity<>("User Not Found",HttpStatus.BAD_REQUEST);
+            }
+            userRepository.delete(user);
+            return new ResponseEntity<>("User Deleted",HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>("User Not Found",HttpStatus.BAD_REQUEST);}
     }
 }

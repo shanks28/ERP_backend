@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.example.ERP.ServiceLayer.Auth;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 @RestController
 @RequestMapping("/admin")
 public class Admin {
@@ -33,5 +35,9 @@ public class Admin {
     @GetMapping("/all-users")
     public ResponseEntity<?> getAllUsers(){
         return adminService.getAllUsers();
+    }
+    @DeleteMapping("/delete-user/{userName}")
+    public ResponseEntity<?> deleteUser(@PathVariable("userName") String userName){
+        return adminService.deleteUser(userName);
     }
 }
