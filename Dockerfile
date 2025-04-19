@@ -6,6 +6,7 @@ RUN mvn clean package -DskipTests
 
 FROM openjdk:17-jdk-slim
 WORKDIR /app
+COPY .env /app/.env
 COPY --from=builder /app/target/*.jar app.jar
 
 ENTRYPOINT ["sh", "-c", "java -jar app.jar"]
