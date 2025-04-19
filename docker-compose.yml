@@ -1,50 +1,51 @@
 services:
-  redis:
-    image: redis
-    container_name: redis
-    restart: always
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD","redis-cli","ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - network1
-  db:
-    image: postgres
-    container_name: db
-    restart: always
-    environment:
-      POSTGRES_DB: db
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - network1
+  # redis:
+  #   image: redis
+  #   container_name: redis
+  #   restart: always
+  #   ports:
+  #     - "6379:6379"
+  #   healthcheck:
+  #     test: ["CMD","redis-cli","ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - network1
+  # db:
+  #   image: postgres
+  #   container_name: db
+  #   restart: always
+  #   environment:
+  #     POSTGRES_DB: db
+  #     POSTGRES_USER: root
+  #     POSTGRES_PASSWORD: password
+  #   ports:
+  #     - "5432:5432"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U root -d db"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - network1
 
   springboot-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: shanks28/erp:latest
     container_name: app
     restart: always
     depends_on:
       - db
       - redis
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://erp-dev-db.cnco2oq6ur26.ap-south-1.rds.amazonaws.com:5432/erp_db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_HOST: erp-redis-dev-edrgsb.serverless.aps1.cache.amazonaws.com
       SPRING_REDIS_PORT: 6379
       MAIL_HOST: smtp.gmail.com
       MAIL_PORT: 587
