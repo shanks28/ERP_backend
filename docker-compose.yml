@@ -31,10 +31,10 @@ services:
   #     - network1
 
   springboot-app:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
-    image: shanks28/erp:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    #image: shanks28/erp:latest
     container_name: app
     restart: always
     depends_on:
