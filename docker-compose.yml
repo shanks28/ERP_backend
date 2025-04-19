@@ -60,6 +60,7 @@ services:
       - .env:/app/.env
     networks:
       - network1
+
 networks:
   network1:
     name: erp_network1
