@@ -37,9 +37,9 @@ services:
     image: shanks28/erp:latest
     container_name: app
     restart: always
-    depends_on:
-      - db
-      - redis
+    # depends_on:
+    #   - db
+    #   - redis
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://erp-dev-db.cnco2oq6ur26.ap-south-1.rds.amazonaws.com:5432/erp_db
       SPRING_DATASOURCE_USERNAME: root
