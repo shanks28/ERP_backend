@@ -9,7 +9,6 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import io.github.cdimascio.dotenv.Dotenv;
 
 @Configuration
 public class RedisConfiguration {
@@ -19,32 +18,17 @@ public class RedisConfiguration {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        // Try to get from Spring environment (system env, Docker Compose, application.properties)
         String redisHost = env.getProperty("spring.redis.host");
         String redisPortStr = env.getProperty("spring.redis.port");
 
-        // Fallback to .env if not found (for local development)
-        if ((redisHost == null || redisPortStr == null)) {
-            try {
-                Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-                if (redisHost == null) {
-                    redisHost = dotenv.get("SPRING_REDIS_HOST");
-                }
-                if (redisPortStr == null) {
-                    redisPortStr = dotenv.get("SPRING_REDIS_PORT");
-                }
-            } catch (Exception e) {
-                // Ignore if .env is not present
-            }
-        }
-
         if (redisHost == null || redisPortStr == null) {
-            throw new IllegalStateException("Redis host/port not configured via environment variables or .env file");
+            throw new IllegalStateException("Redis host/port not configured via environment variables");
         }
 
         int redisPort = Integer.parseInt(redisPortStr);
 
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
+        // Do not set password unless you have enabled Redis AUTH in ElastiCache
         return new LettuceConnectionFactory(config);
     }
 
