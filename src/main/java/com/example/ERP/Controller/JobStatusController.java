@@ -3,6 +3,7 @@ import com.example.ERP.DTO.JobStatusUpdateDTO;
 import com.example.ERP.ServiceLayer.JobStatusService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+
 @RestController
 @RequestMapping("/jobStatus")
 public class JobStatusController {

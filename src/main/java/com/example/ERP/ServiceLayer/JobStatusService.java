@@ -68,7 +68,7 @@ public class JobStatusService {
                 isCompleted=true;
             }
             if(isCompleted){
-                //send mail to the admins
+                //send mail to all admins
                 emailService.sendEmailNotification(jobStatus);//sends current job status
 
             }
