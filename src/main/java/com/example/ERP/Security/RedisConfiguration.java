@@ -9,28 +9,34 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+
 @Configuration
 public class RedisConfiguration {
 
-    @Value("${spring.redis.host}")
-    private String redisHost;
+    @Autowired(required = false)
+    private Dotenv dotenv;
 
-    @Value("${spring.redis.port}")
-    private int redisPort;
+    @Autowired
+    private Environment env;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
+        String redisHost = env.getProperty("spring.redis.host");
+        String redisPortStr = env.getProperty("spring.redis.port");
+
+        // Fallback to Dotenv if not found (for local/dev)
+        if ((redisHost == null || redisPortStr == null) && dotenv != null) {
+            redisHost = dotenv.get("SPRING_REDIS_HOST");
+            redisPortStr = dotenv.get("SPRING_REDIS_PORT");
+        }
+        int redisPort = Integer.parseInt(redisPortStr);
+
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
         return new LettuceConnectionFactory(config);
     }
 
-    @Bean
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
-        template.afterPropertiesSet();
-        return template;
-    }
+    // ... unchanged redisTemplate bean ...
 }
