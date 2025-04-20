@@ -39,18 +39,7 @@ services:
     restart: always
     depends_on:
       - redis
-    # environment:
-    #   SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/db
-    #   SPRING_DATASOURCE_USERNAME: root
-    #   SPRING_DATASOURCE_PASSWORD: password
-    #   SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    #   SPRING_REDIS_HOST: redis
-    #   SPRING_REDIS_PORT: 6379
-    #   MAIL_HOST: smtp.gmail.com
-    #   MAIL_PORT: 587
-    #   MAIL_USERNAME: gaunterodim68@gmail.com
-    #   MAIL_PASSWORD: ahwy txka enru wgeb
-    #   SPRING_PROFILES_ACTIVE: debug
+    
     ports:
       - "8080:8080"
     env_file:
