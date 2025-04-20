@@ -1,6 +1,7 @@
 package com.example.ERP.Controller;
 
 import com.example.ERP.DTO.AuthDTO;
+import com.example.ERP.DTO.AuthDTO.completeRegisterRequest;
 import com.example.ERP.DTO.AuthDTO.registerRequest;
 import com.example.ERP.Models.User;
 import com.example.ERP.ServiceLayer.Auth;
@@ -50,5 +51,9 @@ public class Auth_Controller {
     @PostMapping("/initiate-register")
     public ResponseEntity<String> register(@RequestBody registerRequest request){
         return authService.register(request);
+    }
+    @PostMapping("/complete-register")
+    public ResponseEntity<?> completeRegister(@RequestBody completeRegisterRequest request ){
+        return authService.completeRegister(request);
     }
 }

@@ -45,16 +45,23 @@ public class Auth {
         this.javaMailSender=javaMailSender;
 
     }
-    // public ResponseEntity<String> completeRegister(completeRegisterRequest request){
-    //     try{
-    //         User user=userRepository.findByEmail(request.getEmail());
-    //         if(user==null){
-    //             return new ResponseEntity<>("User does not exist",HttpStatus.BAD_REQUEST);
-    //         }
+    @Transactional
+    public ResponseEntity<String> completeRegister(completeRegisterRequest request){
+        try{
+            User user=userRepository.findByEmail(request.getEmail());
+            if(user==null){
+                return new ResponseEntity<>("User does not exist",HttpStatus.BAD_REQUEST);
+            }
+            user.setPassword(passwordEncoder.encode(request.getPassword()));// encode while setting
+            user.setActive(true);
+            userRepository.save(user);
+            return new ResponseEntity<>("User Registered",HttpStatus.OK);
 
-    //     }
-    // }
-
+        }catch(Exception e){
+            return new ResponseEntity<>(e.toString(),HttpStatus.BAD_REQUEST);
+        }
+    }
+    @Transactional
     public ResponseEntity<String> register(registerRequest details) {
         try{
             User existingUser = userRepository.findByUserName(details.getUserName());
