@@ -43,4 +43,20 @@ public class FieldOptionService {
         }
 
     }
+    @Transactional
+    public ResponseEntity<?> deleteField(Map<String,String> request){
+        try{
+            String fieldName=request.get("fieldName").toLowerCase();
+            String fieldValue=request.get("fieldValue").toLowerCase();
+            FieldOptions option=fieldOptionRepository.findByFieldNameAndFieldValue(fieldName, fieldValue);
+            if(option==null){
+                return new ResponseEntity<>("Field Value does not exist",HttpStatus.BAD_REQUEST);
+            }
+            fieldOptionRepository.delete(option);
+            return new ResponseEntity<>("Deleted Category",HttpStatus.OK);
+
+        }catch(Exception e){
+            return new ResponseEntity<>("Failed to delete Category",HttpStatus.BAD_REQUEST); 
+        }
+    }
 }

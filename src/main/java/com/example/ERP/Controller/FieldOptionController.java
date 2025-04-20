@@ -22,5 +22,9 @@ public class FieldOptionController {
     public ResponseEntity<?> addFieldOption(@RequestBody Map<String,String> request){
         return fieldOptionService.addFieldOption(request);
     }
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteFieldOptino(@RequestBody Map<String,String> request){
+        return fieldOptionService.deleteField(request);
+    }
 
 }

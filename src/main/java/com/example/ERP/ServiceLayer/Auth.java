@@ -93,7 +93,6 @@ public class Auth {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
-
             User user = userRepository.findByUserName(request.getUsername());
             if (user.isActive() == false || user==null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not active");

@@ -11,4 +11,6 @@ public interface FieldOptionRepository extends JpaRepository<FieldOptions, Integ
     // List<FieldOptions> findByFieldName(String fieldName);
     @Query("select o.fieldValue from FieldOptions o where o.fieldName=:fieldName")
     List<String> findByFieldName(@Param("fieldName") String fieldName);
+
+    FieldOptions findByFieldNameAndFieldValue(String fieldName, String fieldValue);
 }
