@@ -32,4 +32,20 @@ public class AuthDTO {
         private String email;
         private Role role;
     }
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class registerRequest{
+        private String userName;
+        private Role role;
+        private String email;
+    }
+    
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class completeRegisterRequest{
+        private String email;
+        private String password;
+    }
 }

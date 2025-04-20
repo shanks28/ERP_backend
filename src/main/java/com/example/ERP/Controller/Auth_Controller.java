@@ -1,6 +1,7 @@
 package com.example.ERP.Controller;
 
 import com.example.ERP.DTO.AuthDTO;
+import com.example.ERP.DTO.AuthDTO.registerRequest;
 import com.example.ERP.Models.User;
 import com.example.ERP.ServiceLayer.Auth;
 import com.example.ERP.ServiceLayer.EmailService;
@@ -46,8 +47,8 @@ public class Auth_Controller {
     public ResponseEntity<String> resetPassword(@RequestBody Map<String,String> request){
         return authService.resetPassword(request.get("email"),request.get("new_password"));
     }
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User details){
-        return authService.register(details);
+    @PostMapping("/initiate-register")
+    public ResponseEntity<String> register(@RequestBody registerRequest request){
+        return authService.register(request);
     }
 }

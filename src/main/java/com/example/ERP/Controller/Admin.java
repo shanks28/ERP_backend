@@ -1,6 +1,7 @@
 package com.example.ERP.Controller;
 
 import com.example.ERP.DTO.AuthDTO;
+import com.example.ERP.DTO.AuthDTO.registerRequest;
 import com.example.ERP.Models.User;
 import com.example.ERP.ServiceLayer.AdminService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +29,9 @@ public class Admin {
     // public String root(){
     //     return adminService.sendEmail();
     // }
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User details){
-        return authService.register(details);
+    @PostMapping("/initiate-register")
+    public ResponseEntity<String> register(@RequestBody registerRequest request){
+        return authService.register(request);
     }
     @GetMapping("/all-users")
     public ResponseEntity<?> getAllUsers(){

@@ -1,6 +1,8 @@
 package com.example.ERP.ServiceLayer;
 
 import com.example.ERP.DTO.AuthDTO;
+import com.example.ERP.DTO.AuthDTO.completeRegisterRequest;
+import com.example.ERP.DTO.AuthDTO.registerRequest;
 import com.example.ERP.Models.User;
 import com.example.ERP.Repository.UserRepository;
 
@@ -22,34 +24,62 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.mail.javamail.JavaMailSender;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
+import org.springframework.mail.SimpleMailMessage;
 @Service
 public class Auth {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JavaMailSender javaMailSender;
 
-    Auth(UserRepository userRepository,PasswordEncoder passwordEncoder,AuthenticationManager authenticationManager) {
+    Auth(JavaMailSender javaMailSender,UserRepository userRepository,PasswordEncoder passwordEncoder,AuthenticationManager authenticationManager) {
         this.authenticationManager=authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder=passwordEncoder;
+        this.javaMailSender=javaMailSender;
 
     }
+    // public ResponseEntity<String> completeRegister(completeRegisterRequest request){
+    //     try{
+    //         User user=userRepository.findByEmail(request.getEmail());
+    //         if(user==null){
+    //             return new ResponseEntity<>("User does not exist",HttpStatus.BAD_REQUEST);
+    //         }
 
-    public ResponseEntity<String> register(User details) {
-        User existingUser = userRepository.findByUserName(details.getUserName());
-        if (existingUser != null) {
-            return new ResponseEntity<>("User Already Exists",HttpStatus.BAD_REQUEST); // 4XX
+    //     }
+    // }
+
+    public ResponseEntity<String> register(registerRequest details) {
+        try{
+            User existingUser = userRepository.findByUserName(details.getUserName());
+            if (existingUser != null) {
+                return new ResponseEntity<>("User Already Exists",HttpStatus.BAD_REQUEST); // 4XX
+            }
+            User newUser=new User();
+            newUser.setUserName(details.getUserName());
+            newUser.setPassword("");
+            newUser.setEmail(details.getEmail());
+            newUser.setRole(details.getRole());
+            userRepository.save(newUser);
+            String verificationURL="http://localhost:5174/set-password?email=" + 
+                            details.getEmail();
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(details.getEmail());
+            mailMessage.setSubject("Complete Registration");
+            mailMessage.setText("Click the link to complete your registration: " + verificationURL);
+            javaMailSender.send(mailMessage);
+
+            return new ResponseEntity<>("Registeration Mail Sent",HttpStatus.OK); //2XX
         }
-        details.setPassword(passwordEncoder.encode(details.getPassword()));
-        userRepository.save(details);
-        return new ResponseEntity<>("User Registered",HttpStatus.OK); //2XX
-
+        catch(Exception e){
+            return new ResponseEntity<>(e.toString(),HttpStatus.BAD_REQUEST);
+        }
     }
     public ResponseEntity<?> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         try {
@@ -58,9 +88,10 @@ public class Auth {
             );
 
             User user = userRepository.findByUserName(request.getUsername());
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            if (user.isActive() == false || user==null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not active");
             }
+            
             LocalDateTime localDateTime = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             user.setLastLogin(localDateTime.format(dateTimeFormatter));

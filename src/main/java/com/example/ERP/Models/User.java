@@ -24,7 +24,7 @@ public class User {
     @Column(name = "username",nullable = false,unique = true)
     private String userName;
 
-    @Column(name="password",nullable = false)
+    @Column(name="password",nullable = true)
     private String password;
 
     @Column(name="email",nullable = false,unique = true)
@@ -39,4 +39,7 @@ public class User {
 
     @Column(nullable = true,name = "last_login")
     private String lastLogin;
+
+    @Column(nullable=false,name="is_active",columnDefinition = "boolean default false")
+    private boolean isActive;
 }
