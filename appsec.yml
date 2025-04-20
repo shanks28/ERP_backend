@@ -1,0 +1,9 @@
+os: linux
+files:
+  - source: /
+    destination: /home/root/
+hooks:
+  AfterInstall:
+    - location: scripts/deploy.sh
+      timeout: 300
+      runas : root
