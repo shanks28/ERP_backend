@@ -85,8 +85,8 @@ A modular Enterprise Resource Planning (ERP) system built with Java, Spring Boot
 ### Job Management
 
 - `POST /crm/create-job` — Create a new job (CRM role)
-- `PATCH /job/update-job` — Update job details
-- `GET /job/get-all-jobs` — List all jobs
+- `PATCH /job/update-job` — Update job details (role-based access)
+- `GET /job/get-all-jobs` — List all jobs (filtered by user role)
 
 ### Field Options
 
@@ -97,6 +97,17 @@ A modular Enterprise Resource Planning (ERP) system built with Java, Spring Boot
 
 - `POST /email/send` — Send email (for password reset, etc.)
 
+## Project Structure
+
+The application follows a standard Spring Boot architecture:
+
+- **Controllers:** Handle HTTP requests and delegate to services
+  - `JobController`: General job operations
+  - `CRM`: CRM-specific job operations
+- **Services:** Contain business logic
+- **Repositories:** Data access layer using Spring Data JPA
+- **Models:** Entity classes representing database tables
+- **DTOs:** Data Transfer Objects for API requests/responses
 
 ## Contributing
 
