@@ -37,7 +37,7 @@ A modular Enterprise Resource Planning (ERP) system built with Java, Spring Boot
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/yourusername/erp.git
+    git clone https://github.com/shanks28/ERP_backend.git
     cd erp
     ```
 
