@@ -29,7 +29,7 @@ public class Auth_Controller {
     }
     @GetMapping
     public Integer root(){
-        return ResponseEntity.ok().build().getStatusCode().value();
+        return -1;
     }
     
     @PostMapping("/login")
