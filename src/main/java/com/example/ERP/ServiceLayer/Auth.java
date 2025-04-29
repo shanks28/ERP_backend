@@ -74,7 +74,7 @@ public class Auth {
             newUser.setEmail(details.getEmail());
             newUser.setRole(details.getRole());
             userRepository.save(newUser);
-            String verificationURL="http://localhost:5174/set-password?email=" + 
+            String verificationURL="https://erp-frontend-gafx.onrender.com/set-password?email=" + 
                             details.getEmail();
             SimpleMailMessage mailMessage = new SimpleMailMessage();
             mailMessage.setTo(details.getEmail());
