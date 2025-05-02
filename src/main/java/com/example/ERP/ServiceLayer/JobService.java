@@ -253,7 +253,7 @@ public class JobService {
                         case "costPrice"->existingJob.setCostPrice((Integer) value);
                         case "billingStatus"->existingJob.setBillingStatus((String) value);
                         case "invoiceNo"->existingJob.setInvoiceNo((String)value);
-                        case "invoiceDate"->existingJob.setInvoiceDate((LocalDate) value);
+                        case "invoiceDate"->existingJob.setInvoiceDate(parseDate(value));
                     }
                 }
                 )
