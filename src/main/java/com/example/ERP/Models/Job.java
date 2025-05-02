@@ -112,6 +112,6 @@ public class Job {
     @PreUpdate
     @PrePersist
     public void onUpdate(){
-        this.updatedAt=LocalDateTime.now();
+        this.updatedAt=LocalDateTime.now().withNano(0);
     }
 }

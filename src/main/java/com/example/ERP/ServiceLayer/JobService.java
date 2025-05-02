@@ -107,7 +107,7 @@ public class JobService {
             List<String> operationsAllowedFields=List.of("jobParticulars","jobReference","boeSbNo",
                     "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","billingStatus","invoiceNo",
                     "invoiceDate","courier_tracking_no","payment_status","remarks",
-                    "apekshaInvoiceNo","action");
+                    "apekshaInvoiceNo","action","dateOfCourier");
             List<String> billingAllowedFields=List.of("payment_status","remarks","sellingPrice","costPrice",
                     "invoiceNo","invoiceDate");
             Integer slNo=(Integer) request.get("slNo");
@@ -164,6 +164,9 @@ public class JobService {
                 }
             }
             else if (roles.contains("ROLE_OPERATIONS")) {
+                if(request.get("dateOfCourier")!=null){
+                    existingJob.setDateOfCourier(parseDate( request.get("dateOfCourier"))) ;
+                }
                 // Update Operations-allowed fields
                 if (request.get("jobParticulars") != null) {
                     existingJob.setJobParticulars((String) request.get("jobParticulars"));
@@ -175,16 +178,16 @@ public class JobService {
                     existingJob.setBoeSbNo((String) request.get("boeSbNo"));
                 }
                 if (request.get("boeSbDate") != null) {
-                    existingJob.setBoeSbDate((LocalDate) request.get("boeSbDate"));
+                    existingJob.setBoeSbDate(parseDate(request.get("boeSbDate")));
                 }
                 if (request.get("arrivalDate") != null) {
-                    existingJob.setArrivalDate((LocalDate) request.get("arrivalDate"));
+                    existingJob.setArrivalDate(parseDate(request.get("arrivalDate")));
                 }
                 if (request.get("tentativeClosureDate") != null) {
-                    existingJob.setTentativeClosureDate((LocalDate) request.get("tentativeClosureDate"));
+                    existingJob.setTentativeClosureDate(parseDate(request.get("tentativeClosureDate")));
                 }
                 if (request.get("closedDate") != null) {
-                    existingJob.setClosedDate((LocalDate) request.get("closedDate"));
+                    existingJob.setClosedDate(parseDate( request.get("closedDate")));
                 }
                 if (request.get("billingStatus") != null) {
                     existingJob.setBillingStatus((String) request.get("billingStatus"));
@@ -193,7 +196,7 @@ public class JobService {
                     existingJob.setInvoiceNo((String) request.get("invoiceNo"));
                 }
                 if (request.get("invoiceDate") != null) {
-                    existingJob.setInvoiceDate((LocalDate) request.get("invoiceDate"));
+                    existingJob.setInvoiceDate(parseDate(request.get("invoiceDate")));
                 }
                 if (request.get("courier_tracking_no") != null) {
                     existingJob.setCourierTrackingNo((String) request.get("courier_tracking_no"));
@@ -217,6 +220,7 @@ public class JobService {
                 request.forEach((key,value)->{
                     if (value==null|| key.equals("slNo")) return;
                     switch (key){
+                        case "dateOfCourier"->existingJob.setDateOfCourier(parseDate(value));
                         case "jobId"-> existingJob.setJobId((Integer) value);
                         case "customerName" -> existingJob.setCustomerName((String) value);
                         case "jobDate" -> existingJob.setJobDate(parseDate(value));
