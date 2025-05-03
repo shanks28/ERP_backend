@@ -109,7 +109,7 @@ public class JobService {
                     "invoiceDate","courier_tracking_no","payment_status","remarks",
                     "apekshaInvoiceNo","action","dateOfCourier");
             List<String> billingAllowedFields=List.of("payment_status","remarks","sellingPrice","costPrice",
-                    "invoiceNo","invoiceDate");
+                    "invoiceNo","invoiceDate","billingStatus");
             Integer slNo=(Integer) request.get("slNo");
             if (slNo==null){
                 return new ResponseEntity<>("slNo not valid",HttpStatus.BAD_REQUEST);
@@ -132,7 +132,6 @@ public class JobService {
                         unauthorizedFields.add(key);
                     }
                 }
-
             }
             if (!unauthorizedFields.isEmpty()) {// if it is not empty there has been a restricted update
                 return new ResponseEntity<>("Unauthorized updates:" + String.join(",", unauthorizedFields), HttpStatus.BAD_REQUEST);
