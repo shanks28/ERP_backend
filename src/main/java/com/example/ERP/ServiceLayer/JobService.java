@@ -105,11 +105,11 @@ public class JobService {
             // this is to dynamically update all fields if any changes we can just add to list
             List<String> crmAllowedFields=List.of("jobId","customerName","jobDate","category","sellingPrice");
             List<String> operationsAllowedFields=List.of("jobParticulars","jobReference","boeSbNo",
-                    "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","billingStatus","invoiceNo",
+                    "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","billingStatus",
                     "invoiceDate","courier_tracking_no","payment_status","remarks",
-                    "apekshaInvoiceNo","action","dateOfCourier");
-            List<String> billingAllowedFields=List.of("payment_status","remarks","sellingPrice","costPrice",
-                    "invoiceNo","invoiceDate","billingStatus");
+                    "apekshaInvoiceNo","action","dateOfCourier","action");
+            List<String> billingAllowedFields=List.of("payment_status","dateOfCourier","remarks","sellingPrice","costPrice",
+                    "apekshaInvoiceNo","invoiceDate","billingStatus");
             Integer slNo=(Integer) request.get("slNo");
             if (slNo==null){
                 return new ResponseEntity<>("slNo not valid",HttpStatus.BAD_REQUEST);
@@ -191,9 +191,6 @@ public class JobService {
                 if (request.get("billingStatus") != null) {
                     existingJob.setBillingStatus((String) request.get("billingStatus"));
                 }
-                if (request.get("invoiceNo") != null) {
-                    existingJob.setInvoiceNo((String) request.get("invoiceNo"));
-                }
                 if (request.get("invoiceDate") != null) {
                     existingJob.setInvoiceDate(parseDate(request.get("invoiceDate")));
                 }
@@ -234,12 +231,11 @@ public class JobService {
                         case "tentativeClosureDate" -> existingJob.setTentativeClosureDate(parseDate(value));
                         case "closedDate" -> existingJob.setClosedDate(parseDate(value));
                         case "billingStatus" -> existingJob.setBillingStatus((String) value);
-                        case "invoiceNo" -> existingJob.setInvoiceNo((String) value);
+                        case "apekshaInvoiceNo" -> existingJob.setApekshaInvoiceNo((String) value);
                         case "invoiceDate" -> existingJob.setInvoiceDate(parseDate(value));
                         case "courier_tracking_no" -> existingJob.setCourierTrackingNo((String) value);
                         case "payment_status" -> existingJob.setPaymentStatus((String) value);
                         case "remarks" -> existingJob.setRemarks((String) value);
-                        case "apekshaInvoiceNo" -> existingJob.setApekshaInvoiceNo((String) value);
                         case "action" -> existingJob.setAction((String) value);
                     }
                 });
@@ -247,12 +243,14 @@ public class JobService {
                 request.forEach((key,value)->{
                     if(key.equals("slNo")||value==null) return;
                     switch(key){
+                        case "payment_status"->existingJob.setPaymentStatus((String) value);
                         case "sellingPrice"->existingJob.setSellingPrice((Integer) value);
                         case "remarks"->existingJob.setRemarks((String) value);
                         case "costPrice"->existingJob.setCostPrice((Integer) value);
                         case "billingStatus"->existingJob.setBillingStatus((String) value);
-                        case "invoiceNo"->existingJob.setInvoiceNo((String)value);
+                        case "apekshaInvoiceNo"->existingJob.setApekshaInvoiceNo((String)value);
                         case "invoiceDate"->existingJob.setInvoiceDate(parseDate(value));
+                        case "dateOfCourier"->existingJob.setDateOfCourier(parseDate(value));
                     }
                 }
                 )

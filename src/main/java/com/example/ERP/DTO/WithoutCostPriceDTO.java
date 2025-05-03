@@ -24,7 +24,7 @@ public class WithoutCostPriceDTO {
     private LocalDate closedDate;
     private Integer sellingPrice;
     private String billingStatus;
-    private String invoiceNo;
+    // private String invoiceNo;
     private LocalDate invoiceDate;
     private String courierTrackingNo;
     private String paymentStatus;

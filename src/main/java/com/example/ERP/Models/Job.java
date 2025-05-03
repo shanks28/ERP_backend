@@ -73,8 +73,8 @@ public class Job {
     @Column(name = "billing_status")
     private String billingStatus;
 
-    @Column(name = "invoice_no")
-    private String invoiceNo;
+    // @Column(name = "invoice_no")
+    // private String invoiceNo;
 
     @Column(name = "invoice_date")
     @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
