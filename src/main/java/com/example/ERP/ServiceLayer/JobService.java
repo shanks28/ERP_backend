@@ -106,9 +106,9 @@ public class JobService {
             List<String> crmAllowedFields=List.of("jobId","customerName","jobDate","category","sellingPrice");
             List<String> operationsAllowedFields=List.of("jobParticulars","jobReference","boeSbNo",
                     "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","billingStatus",
-                    "invoiceDate","courier_tracking_no","payment_status","remarks",
+                    "invoiceDate","courierTrackingNo","paymentStatus","remarks",
                     "apekshaInvoiceNo","action","dateOfCourier","action");
-            List<String> billingAllowedFields=List.of("payment_status","dateOfCourier","remarks","sellingPrice","costPrice",
+            List<String> billingAllowedFields=List.of("paymentStatus","dateOfCourier","remarks","sellingPrice","costPrice",
                     "apekshaInvoiceNo","invoiceDate","billingStatus");
             Integer slNo=(Integer) request.get("slNo");
             if (slNo==null){
@@ -194,11 +194,11 @@ public class JobService {
                 if (request.get("invoiceDate") != null) {
                     existingJob.setInvoiceDate(parseDate(request.get("invoiceDate")));
                 }
-                if (request.get("courier_tracking_no") != null) {
-                    existingJob.setCourierTrackingNo((String) request.get("courier_tracking_no"));
+                if (request.get("courierTrackingNo") != null) {
+                    existingJob.setCourierTrackingNo((String) request.get("courierTrackingNo"));
                 }
-                if (request.get("payment_status") != null) {
-                    existingJob.setPaymentStatus((String) request.get("payment_status"));
+                if (request.get("paymentStatus") != null) {
+                    existingJob.setPaymentStatus((String) request.get("paymentStatus"));
                 }
                 if (request.get("remarks") != null) {
                     String existingRemarks= existingJob.getRemarks();
@@ -233,7 +233,7 @@ public class JobService {
                         case "billingStatus" -> existingJob.setBillingStatus((String) value);
                         case "apekshaInvoiceNo" -> existingJob.setApekshaInvoiceNo((String) value);
                         case "invoiceDate" -> existingJob.setInvoiceDate(parseDate(value));
-                        case "courier_tracking_no" -> existingJob.setCourierTrackingNo((String) value);
+                        case "courierTrackingNo" -> existingJob.setCourierTrackingNo((String) value);
                         case "payment_status" -> existingJob.setPaymentStatus((String) value);
                         case "remarks" -> existingJob.setRemarks((String) value);
                         case "action" -> existingJob.setAction((String) value);
