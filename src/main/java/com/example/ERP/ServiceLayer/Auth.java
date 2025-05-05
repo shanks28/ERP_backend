@@ -30,6 +30,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+
 @Service
 public class Auth {
 
@@ -94,8 +98,8 @@ public class Auth {
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
             User user = userRepository.findByUserName(request.getUsername());
-            if (user.isActive() == false || user==null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not active");
+            if (user == null || !user.isActive()) { // Combined null check and active check
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not active or does not exist");
             }
             
             LocalDateTime localDateTime = LocalDateTime.now();
@@ -108,7 +112,7 @@ public class Auth {
             SecurityContextHolder.setContext(securityContext);
 
             SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
-            securityContextRepository.saveContext(securityContext, httpRequest, httpResponse);
+            securityContextRepository.saveContext(securityContext, httpRequest, httpResponse); 
 
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
@@ -123,6 +127,7 @@ public class Auth {
             AuthDTO.LoginResponse response = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username/password incorrect");
         }
     }

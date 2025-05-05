@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Auth Test</title>
+</head>
+
+<body>
+    <h1>Testing Authentication Flow</h1>
+    <p>Check the browser's developer console (F12) for results.</p>
+
+    <script>
+        // --- Configuration --- 
+        // IMPORTANT: Change these values to match your setup!
+        const backendBaseUrl = 'http://localhost:8080'; // Or your deployed backend URL (e.g., 'https://your-backend.onrender.com')
+        const loginEndpoint = '/auth/login'; // Your login path
+        const protectedEndpoint = '/job/get-all-jobs';   // An example protected path
+
+        const testUsername = 'your_test_username'; // Replace with a valid username
+        const testPassword = 'your_test_password'; // Replace with the password
+        // --- End Configuration ---
+
+        async function testAuthentication() {
+            console.log(`Attempting login for user: ${testUsername} at ${backendBaseUrl}${loginEndpoint}`);
+
+            try {
+                // 1. Login Request
+                const loginResponse = await fetch(backendBaseUrl + loginEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: "Akash",
+                        password: "ADMIN"
+                    }),
+                    credentials: 'include' // IMPORTANT: Sends cookies (like JSESSIONID) from/to the browser
+                });
+
+                console.log('Login Response Status:', loginResponse.status);
+                const loginData = await loginResponse.json(); // Assuming your login returns JSON
+                console.log('Login Response Data:', loginData);
+
+                if (!loginResponse.ok) {
+                    console.error('Login failed.');
+                    return; // Stop if login failed
+                }
+
+                console.log('Login successful. Now attempting to access protected endpoint:', backendBaseUrl + protectedEndpoint);
+
+                // 2. Authenticated Request (after successful login)
+                const protectedResponse = await fetch(backendBaseUrl + protectedEndpoint, {
+                    method: 'GET', // Or POST, PUT, etc., depending on the endpoint
+                    headers: {
+                        // Add any other necessary headers if required by the endpoint
+                    },
+                    credentials: 'include' // IMPORTANT: Sends the JSESSIONID cookie received during login
+                });
+
+                console.log('Protected Endpoint Response Status:', protectedResponse.status);
+
+                // Check if the response is likely HTML (indicating a redirect to login)
+                const contentType = protectedResponse.headers.get('content-type');
+                if (contentType && contentType.includes('text/html') && protectedResponse.status === 200) {
+                    console.warn('Received HTML content from protected endpoint - likely redirected to login page. Session might not be working correctly.');
+                    const htmlContent = await protectedResponse.text();
+                    console.log('Received HTML:', htmlContent.substring(0, 500) + '...'); // Log beginning of HTML
+                } else if (protectedResponse.ok) {
+                    // Try to parse as JSON if successful and not HTML
+                    try {
+                        const protectedData = await protectedResponse.json();
+                        console.log('Protected Endpoint Response Data:', protectedData);
+                        console.log('SUCCESS: Successfully accessed protected endpoint.');
+                    } catch (jsonError) {
+                        console.warn('Could not parse protected endpoint response as JSON. Status:', protectedResponse.status);
+                        const textData = await protectedResponse.text(); // Read as text instead
+                        console.log('Protected Endpoint Response Text:', textData);
+                    }
+                } else {
+                    console.error('Failed to access protected endpoint. Status:', protectedResponse.status);
+                    // Optionally try to read error response body
+                    try {
+                        const errorData = await protectedResponse.json();
+                        console.error('Protected Endpoint Error Data:', errorData);
+                    } catch (e) {
+                        const errorText = await protectedResponse.text();
+                        console.error('Protected Endpoint Error Text:', errorText);
+                    }
+                }
+
+            } catch (error) {
+                console.error('An error occurred during the fetch process:', error);
+            }
+        }
+
+        // Run the test when the page loads
+        testAuthentication();
+    </script>
+</body>
+
+</html>
