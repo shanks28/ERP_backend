@@ -234,7 +234,7 @@ public class JobService {
                         case "apekshaInvoiceNo" -> existingJob.setApekshaInvoiceNo((String) value);
                         case "invoiceDate" -> existingJob.setInvoiceDate(parseDate(value));
                         case "courierTrackingNo" -> existingJob.setCourierTrackingNo((String) value);
-                        case "payment_status" -> existingJob.setPaymentStatus((String) value);
+                        case "paymentStatus" -> existingJob.setPaymentStatus((String) value);
                         case "remarks" -> existingJob.setRemarks((String) value);
                         case "action" -> existingJob.setAction((String) value);
                     }
