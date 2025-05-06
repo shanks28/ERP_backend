@@ -27,6 +27,8 @@ public class WithoutCostPriceDTO {
     // private String invoiceNo;
     private LocalDate invoiceDate;
     private String courierTrackingNo;
+    private LocalDate dutyPaidDate;
+    private LocalDate clearanceDate;
     private String paymentStatus;
     private String remarks;
     private String apekshaInvoiceNo;

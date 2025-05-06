@@ -106,6 +106,14 @@ public class Job {
     @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy 'T' HH:mm:ss")
     private LocalDateTime updatedAt;
 
+    @Column(name="duty_paid_date")
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
+    private LocalDate dutyPaidDate;
+
+    @Column(name="clearance_date")
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
+    private LocalDate clearanceDate;
+
     @Version
     private Long version;
 

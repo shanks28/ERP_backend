@@ -119,10 +119,11 @@ public class Auth {
 
             Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
             sessionCookie.setHttpOnly(true);
-            sessionCookie.setSecure(httpRequest.isSecure());
+            sessionCookie.setSecure(httpRequest.isSecure()); // Always true for HTTPS
             sessionCookie.setPath("/");
-
             httpResponse.addCookie(sessionCookie);
+            // Add SameSite=None manually
+            httpResponse.setHeader("Set-Cookie", String.format("JSESSIONID=%s; Path=/; HttpOnly; Secure; SameSite=None", session.getId()));
 
             AuthDTO.LoginResponse response = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
             return ResponseEntity.ok(response);

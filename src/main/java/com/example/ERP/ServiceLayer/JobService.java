@@ -107,7 +107,7 @@ public class JobService {
             List<String> operationsAllowedFields=List.of("jobParticulars","jobReference","boeSbNo",
                     "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","billingStatus",
                     "invoiceDate","courierTrackingNo","paymentStatus","remarks",
-                    "apekshaInvoiceNo","action","dateOfCourier","action");
+                    "apekshaInvoiceNo","action","dateOfCourier","action","dutyPaidDate","cleranceDate");
             List<String> billingAllowedFields=List.of("paymentStatus","dateOfCourier","remarks","sellingPrice","costPrice",
                     "apekshaInvoiceNo","invoiceDate","billingStatus");
             Integer slNo=(Integer) request.get("slNo");
@@ -211,6 +211,12 @@ public class JobService {
                 if (request.get("action") != null) {
                     existingJob.setAction((String) request.get("action"));
                 }
+                if(request.get("dutyPaidDate")!=null){
+                    existingJob.setDutyPaidDate(parseDate(request.get("dutyPaidDate")));
+                }
+                if(request.get("cleranceDate")!=null){
+                    existingJob.setClearanceDate(parseDate(request.get("clearanceDate")));
+                }
             }
             else if(roles.contains("ROLE_ADMIN")){
                 request.forEach((key,value)->{
@@ -237,6 +243,8 @@ public class JobService {
                         case "paymentStatus" -> existingJob.setPaymentStatus((String) value);
                         case "remarks" -> existingJob.setRemarks((String) value);
                         case "action" -> existingJob.setAction((String) value);
+                        case "dutyPaidDate" -> existingJob.setDutyPaidDate(parseDate(value));
+                        case "clearanceDate"->existingJob.setClearanceDate(parseDate(value));
                     }
                 });
             } else if (roles.contains("ROLE_BILLING")) {
