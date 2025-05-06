@@ -116,13 +116,14 @@ public class Auth {
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
 
-            Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
-            sessionCookie.setHttpOnly(true);
-            sessionCookie.setSecure(httpRequest.isSecure()); // Always true for HTTPS
-            sessionCookie.setPath("/");
-            httpResponse.addCookie(sessionCookie);
+            // Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
+            // sessionCookie.setHttpOnly(true);
+            // sessionCookie.setSecure(httpRequest.isSecure()); // Always true for HTTPS
+            // sessionCookie.setPath("/");
+            // httpResponse.addCookie(sessionCookie);
             httpResponse.setHeader("Set-Cookie",
-                    String.format("JSESSIONID=%s; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400", session.getId()));
+                    String.format("JSESSIONID=%s; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400",
+                            session.getId()));
             httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
             AuthDTO.LoginResponse responseDto = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
             return ResponseEntity.ok(responseDto);
