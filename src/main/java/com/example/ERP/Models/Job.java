@@ -30,9 +30,11 @@ public class Job {
 
     @Column(name = "job_id",nullable = false)
     private Integer jobId;
+
     @Column(name="jobDate",nullable = false)
     @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     private LocalDate jobDate;
+    
     @Column(name = "category", nullable = false)
     private String category;
 

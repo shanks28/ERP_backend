@@ -34,6 +34,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 
+import java.time.Duration; // Add this import
+
 @Service
 public class Auth {
 
@@ -98,10 +100,10 @@ public class Auth {
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
             User user = userRepository.findByUserName(request.getUsername());
-            if (user == null || !user.isActive()) { // Combined null check and active check
+            if (user == null || !user.isActive()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not active or does not exist");
             }
-            
+
             LocalDateTime localDateTime = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             user.setLastLogin(localDateTime.format(dateTimeFormatter));
@@ -111,9 +113,6 @@ public class Auth {
             securityContext.setAuthentication(authentication);
             SecurityContextHolder.setContext(securityContext);
 
-            SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
-            securityContextRepository.saveContext(securityContext, httpRequest, httpResponse); 
-
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
 
@@ -122,14 +121,13 @@ public class Auth {
             sessionCookie.setSecure(httpRequest.isSecure()); // Always true for HTTPS
             sessionCookie.setPath("/");
             httpResponse.addCookie(sessionCookie);
-            // Add SameSite=None manually
-            httpResponse.setHeader("Set-Cookie", String.format("JSESSIONID=%s; Path=/; HttpOnly; Secure; SameSite=None", session.getId()));
-
-            AuthDTO.LoginResponse response = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
-            return ResponseEntity.ok(response);
+            httpResponse.setHeader("Set-Cookie",
+                    String.format("JSESSIONID=%s; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400", session.getId()));
+            httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+            AuthDTO.LoginResponse responseDto = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
+            return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username/password incorrect");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username/password incorrect or other login error");
         }
     }
 

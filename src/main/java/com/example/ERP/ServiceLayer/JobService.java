@@ -103,11 +103,11 @@ public class JobService {
                     .toList();
             List<String> unauthorizedFields=new ArrayList<>();
             // this is to dynamically update all fields if any changes we can just add to list
-            List<String> crmAllowedFields=List.of("jobId","customerName","jobDate","category","sellingPrice");
+            List<String> crmAllowedFields=List.of("jobId","customerName","jobDate","category","sellingPrice","remarks");
             List<String> operationsAllowedFields=List.of("jobParticulars","jobReference","boeSbNo",
                     "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","billingStatus",
                     "invoiceDate","courierTrackingNo","paymentStatus","remarks",
-                    "apekshaInvoiceNo","action","dateOfCourier","action","dutyPaidDate","cleranceDate");
+                    "apekshaInvoiceNo","action","dateOfCourier","action","dutyPaidDate","clearanceDate");
             List<String> billingAllowedFields=List.of("paymentStatus","dateOfCourier","remarks","sellingPrice","costPrice",
                     "apekshaInvoiceNo","invoiceDate","billingStatus");
             Integer slNo=(Integer) request.get("slNo");
@@ -159,7 +159,13 @@ public class JobService {
                 if(request.get("remarks")!=null){
                     String existingRemarks= existingJob.getRemarks();
                     String newRemarks=(String)request.get("remarks");
-                    existingJob.setRemarks(existingRemarks.concat(newRemarks));
+                    if (existingRemarks==null){
+                        existingJob.setRemarks(newRemarks);
+                    }
+                    else{
+                        existingJob.setRemarks(existingRemarks.concat(newRemarks));
+
+                    }
                 }
             }
             else if (roles.contains("ROLE_OPERATIONS")) {
@@ -203,7 +209,13 @@ public class JobService {
                 if (request.get("remarks") != null) {
                     String existingRemarks= existingJob.getRemarks();
                     String newRemarks=(String)request.get("remarks");
-                    existingJob.setRemarks(existingRemarks.concat(newRemarks));
+                    if(existingRemarks==null){
+                        existingJob.setRemarks(newRemarks);
+                    }
+                    else{
+                        existingJob.setRemarks(existingRemarks.concat(newRemarks));
+
+                    }
                 }
                 if (request.get("apekshaInvoiceNo") != null) {
                     existingJob.setApekshaInvoiceNo((String) request.get("apekshaInvoiceNo"));
@@ -214,7 +226,7 @@ public class JobService {
                 if(request.get("dutyPaidDate")!=null){
                     existingJob.setDutyPaidDate(parseDate(request.get("dutyPaidDate")));
                 }
-                if(request.get("cleranceDate")!=null){
+                if(request.get("clearanceDate")!=null){
                     existingJob.setClearanceDate(parseDate(request.get("clearanceDate")));
                 }
             }
@@ -251,7 +263,7 @@ public class JobService {
                 request.forEach((key,value)->{
                     if(key.equals("slNo")||value==null) return;
                     switch(key){
-                        case "payment_status"->existingJob.setPaymentStatus((String) value);
+                        case "paymentStatus"->existingJob.setPaymentStatus((String) value);
                         case "sellingPrice"->existingJob.setSellingPrice((Integer) value);
                         case "remarks"->existingJob.setRemarks((String) value);
                         case "costPrice"->existingJob.setCostPrice((Integer) value);
