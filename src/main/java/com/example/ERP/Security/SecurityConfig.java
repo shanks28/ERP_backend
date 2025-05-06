@@ -37,7 +37,8 @@ public class SecurityConfig {
             "https://erp-frontend-gafx.onrender.com",
             "http://127.0.0.1:5500",
             "https://ec2-3-111-73-24.ap-south-1.compute.amazonaws.com", // Add your EC2 HTTPS URL
-            "null"));
+            "null",
+            "http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
         configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));

@@ -12,12 +12,12 @@
     <script>
         // --- Configuration --- 
         // IMPORTANT: Change these values to match your setup!
-        const backendBaseUrl = 'http://3.111.73.24:8080'; // Or your deployed backend URL (e.g., 'https://your-backend.onrender.com')
+        const backendBaseUrl = 'https://ec2-3-111-73-24.ap-south-1.compute.amazonaws.com'; // Updated to use HTTPS and your EC2 domain
         const loginEndpoint = '/auth/login'; // Your login path
         const protectedEndpoint = '/job/get-all-jobs';   // An example protected path
 
-        const testUsername = 'your_test_username'; // Replace with a valid username
-        const testPassword = 'your_test_password'; // Replace with the password
+        const testUsername = 'Akash'; // Replace with a valid username
+        const testPassword = 'ADMIN'; // Replace with the password
         // --- End Configuration ---
 
         async function testAuthentication() {
@@ -97,5 +97,4 @@
         testAuthentication();
     </script>
 </body>
-
 </html>
