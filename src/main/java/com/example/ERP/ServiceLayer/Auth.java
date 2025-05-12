@@ -122,9 +122,8 @@ public class Auth {
             // sessionCookie.setPath("/");
             // httpResponse.addCookie(sessionCookie);
             httpResponse.setHeader("Set-Cookie",
-                    String.format("JSESSIONID=%s; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400",
-                            session.getId()));
-            httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+        String.format("JSESSIONID=%s; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400", session.getId()));
+httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
             AuthDTO.LoginResponse responseDto = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {

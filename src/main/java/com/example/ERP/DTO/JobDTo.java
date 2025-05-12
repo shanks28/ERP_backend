@@ -17,6 +17,8 @@ public class JobDTo {
     public static class CRMEntryRequest{
 
         private String customerName;
+        
+        private boolean isTemp;
 
         @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
         private LocalDate date;

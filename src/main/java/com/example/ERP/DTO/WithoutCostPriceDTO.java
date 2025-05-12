@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class WithoutCostPriceDTO {
     private Integer slNo;
     private Integer jobId;
+    private boolean isTemp;
+    
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate jobDate;
     private String category;
@@ -29,7 +31,6 @@ public class WithoutCostPriceDTO {
     private LocalDate tentativeClosureDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate closedDate;
-    private Integer sellingPrice;
     private String billingStatus;
     // private String invoiceNo;
     private LocalDate invoiceDate;
@@ -46,4 +47,5 @@ public class WithoutCostPriceDTO {
     private String action;
     private String updatedBy;
     private LocalDateTime updatedAt;
+    private Integer tat;
 }

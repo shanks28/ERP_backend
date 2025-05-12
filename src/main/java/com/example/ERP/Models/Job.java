@@ -116,12 +116,26 @@ public class Job {
     @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     private LocalDate clearanceDate;
 
+    @Column(name="is_temp",columnDefinition = "boolean default false",nullable = true)
+    private boolean isTemp;
+
     @Version
     private Long version;
+
+    @Column(name = "tat")
+    private Integer tat;
+    
+    @OneToOne(mappedBy="job",cascade=CascadeType.ALL,orphanRemoval = true)
+    private JobStatus jobStatus;
 
     @PreUpdate
     @PrePersist
     public void onUpdate(){
-        this.updatedAt=LocalDateTime.now().withNano(0);
+        this.updatedAt = LocalDateTime.now().withNano(0);
+        if (this.jobDate != null && this.closedDate != null) {
+            this.tat = (int) java.time.temporal.ChronoUnit.DAYS.between(this.jobDate, this.closedDate);
+        } else {
+            this.tat = null;
+        }
     }
 }

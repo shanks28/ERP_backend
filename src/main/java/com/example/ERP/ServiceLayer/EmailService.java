@@ -49,9 +49,11 @@ public class EmailService {
     public ResponseEntity<?> sendEmailNotification(JobStatus jobStatus){
         try{
             List<User> adminUsers=userRepository.findByRole(Role.ADMIN);
+            List<User> operationsUsers=userRepository.findByRole(Role.OPERATIONS);
             if (adminUsers.isEmpty()){
                 return new ResponseEntity<>("No admin users found",HttpStatus.NOT_FOUND);
             }
+            
             String body = String.format(
                 "Job ID: %s\n" +
                 "Serial No: %d\n\n" +
@@ -69,6 +71,13 @@ public class EmailService {
             for(User admins:adminUsers){
                 SimpleMailMessage message=new SimpleMailMessage();
                 message.setTo(admins.getEmail());
+                message.setSubject("Job Status Update"+jobStatus.getJob().getJobId());
+                message.setText(body);
+                mailSender.send(message);
+            }
+            for(User operations:operationsUsers){
+                SimpleMailMessage message=new SimpleMailMessage();
+                message.setTo(operations.getEmail());
                 message.setSubject("Job Status Update"+jobStatus.getJob().getJobId());
                 message.setText(body);
                 mailSender.send(message);

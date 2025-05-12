@@ -25,4 +25,9 @@ public class JobController { // this separate controller makes the job of the fr
     public List<?> getAllJobs(Principal principal){
         return jobService.getAllRecords(principal);
     }
+    @DeleteMapping("/delete-job/{slNo}")
+    public ResponseEntity<?> deleteJob(@PathVariable("slNo") Integer slNo){
+        return jobService.deleteJob(slNo);
+
+    }
 }

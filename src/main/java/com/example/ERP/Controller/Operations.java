@@ -9,12 +9,17 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
+import com.example.ERP.DTO.*;
 @RestController
 @RequestMapping("/operations")
 public class Operations {
     private final JobService jobService;
     public Operations(JobService crmService){
         this.jobService=crmService;
+    }
+    
+    @PostMapping("/create-job")
+    public ResponseEntity<Object> createJob(@RequestBody JobDTo.CRMEntryRequest request, Principal principal) {
+        return jobService.createJob(request, principal);
     }
 }

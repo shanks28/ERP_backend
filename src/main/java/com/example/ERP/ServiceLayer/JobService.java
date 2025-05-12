@@ -2,6 +2,7 @@ package com.example.ERP.ServiceLayer;
 
 import com.example.ERP.DTO.JobDTo;
 import com.example.ERP.DTO.WithoutCostPriceDTO;
+import com.example.ERP.DTO.WithoutJobStatus;
 import com.example.ERP.Models.Job;
 import com.example.ERP.Repository.JobRepository;
 import com.example.ERP.Repository.UserRepository;
@@ -41,12 +42,16 @@ public class JobService {
     public List<?> getAllRecords(Principal principal){
         String role=userRepository.findByUserName(principal.getName()).getRole().toString();
         List<Job>jobs=jobRepository.findAll();
-        if(role.equals("ADMIN")||role.equals("BILLING")){
-            return jobs;
+        if(role.equals("ADMIN")||role.equals("CRM")){
+            return jobs.stream().map(job->{
+                WithoutJobStatus dto=new WithoutJobStatus();
+                BeanUtils.copyProperties(job,dto);
+                return dto;
+            }).toList();
         }
         return jobs.stream().map(job->{
             WithoutCostPriceDTO dto=new WithoutCostPriceDTO();
-            BeanUtils.copyProperties(job,dto);//used to filter
+            BeanUtils.copyProperties(job,dto);//used to filter for other roles
             return dto;
         }).toList();
     }
@@ -62,17 +67,16 @@ public class JobService {
             if (existingJob!=null) {// this is a job that already exists with similar details
                 job=new Job(Integer.parseInt(existingJob),request.getCustomerName(),
                 request.getCategory(),request.getDate(),request.getSellingPrice());
-
-                job.setUpdatedBy(principal.getName());
-                jobRepository.save(job);// created job if exists and update database
+                // created job if exists and update database
             }
             else{// jobid does not exist in the redis container so need to generate a new one and update redis
                 Integer lastJobId=jobRepository.findLatestJobId();
                 job=new Job(lastJobId+1,request.getCustomerName(),request.getCategory(),request.getDate(),request.getSellingPrice());
-                job.setUpdatedBy(principal.getName());
-                jobRepository.save(job);
                 redisService.set(key,String.valueOf(lastJobId+1));
             }
+            job.setUpdatedBy(principal.getName());
+            job.setTemp((boolean) request.isTemp());
+            jobRepository.save(job);
             JobStatus jobStatus=new JobStatus();
             jobStatus.setJob(job);
             jobStatus.setBillingStatus("STARTED");
@@ -103,13 +107,21 @@ public class JobService {
                     .toList();
             List<String> unauthorizedFields=new ArrayList<>();
             // this is to dynamically update all fields if any changes we can just add to list
-            List<String> crmAllowedFields=List.of("jobId","customerName","jobDate","category","sellingPrice","remarks");
-            List<String> operationsAllowedFields=List.of("jobParticulars","jobReference","boeSbNo",
-                    "boeSbDate","arrivalDate","tentativeClosureDate","closedDate","billingStatus",
+            List<String> crmAllowedFields=List.of("jobId","customerName","jobDate",
+            "category","sellingPrice","costPrice","remarks","isTemp");
+
+            List<String> operationsAllowedFields=List.of("jobParticulars",
+                    "jobReference","boeSbNo",
+                    "boeSbDate","arrivalDate","tentativeClosureDate","closedDate",
+                    "billingStatus",
                     "invoiceDate","courierTrackingNo","paymentStatus","remarks",
-                    "apekshaInvoiceNo","action","dateOfCourier","action","dutyPaidDate","clearanceDate");
-            List<String> billingAllowedFields=List.of("paymentStatus","dateOfCourier","remarks","sellingPrice","costPrice",
+                    "apekshaInvoiceNo","action","dateOfCourier","action","dutyPaidDate",
+                    "clearanceDate","jobId","isTemp",
+                    "customerName", "jobDate", "category");
+
+            List<String> billingAllowedFields=List.of("paymentStatus","dateOfCourier","remarks",
                     "apekshaInvoiceNo","invoiceDate","billingStatus");
+
             Integer slNo=(Integer) request.get("slNo");
             if (slNo==null){
                 return new ResponseEntity<>("slNo not valid",HttpStatus.BAD_REQUEST);
@@ -156,6 +168,12 @@ public class JobService {
                 if (request.get("sellingPrice") != null) {
                     existingJob.setSellingPrice((Integer) request.get("sellingPrice")); // Assuming it's a Double
                 }
+                if(request.get("costPrice")!=null){
+                    existingJob.setCostPrice((Integer)request.get("costPrice"));
+                }
+                if(request.get("isTemp")!=null){
+                    existingJob.setTemp((Boolean) request.get("isTemp"));
+                }
                 if(request.get("remarks")!=null){
                     String existingRemarks= existingJob.getRemarks();
                     String newRemarks=(String)request.get("remarks");
@@ -171,6 +189,21 @@ public class JobService {
             else if (roles.contains("ROLE_OPERATIONS")) {
                 if(request.get("dateOfCourier")!=null){
                     existingJob.setDateOfCourier(parseDate( request.get("dateOfCourier"))) ;
+                }
+                if(request.get("customerName")!=null){
+                    existingJob.setCustomerName((String) request.get("customerName"));
+                }
+                if(request.get("jobDate")!=null){
+                    existingJob.setJobDate(parseDate(request.get("jobDate")));
+                }
+                if(request.get("category")!=null){
+                    existingJob.setCategory((String) request.get("category"));
+                }
+                if(request.get("jobId")!=null){
+                    existingJob.setJobId((Integer) request.get("jobId"));
+                }
+                if(request.get("isTemp")!=null){
+                    existingJob.setTemp((Boolean) request.get("isTemp"));
                 }
                 // Update Operations-allowed fields
                 if (request.get("jobParticulars") != null) {
@@ -253,9 +286,11 @@ public class JobService {
                         case "invoiceDate" -> existingJob.setInvoiceDate(parseDate(value));
                         case "courierTrackingNo" -> existingJob.setCourierTrackingNo((String) value);
                         case "paymentStatus" -> existingJob.setPaymentStatus((String) value);
-                        case "remarks" -> existingJob.setRemarks((String) value);
+                        case "remarks" -> existingJob.setRemarks(existingJob.getRemarks()==null?
+                        (String) value:existingJob.getRemarks().concat((String) value));
                         case "action" -> existingJob.setAction((String) value);
                         case "dutyPaidDate" -> existingJob.setDutyPaidDate(parseDate(value));
+                        case "isTemp"->existingJob.setTemp((Boolean) value);
                         case "clearanceDate"->existingJob.setClearanceDate(parseDate(value));
                     }
                 });
@@ -264,9 +299,8 @@ public class JobService {
                     if(key.equals("slNo")||value==null) return;
                     switch(key){
                         case "paymentStatus"->existingJob.setPaymentStatus((String) value);
-                        case "sellingPrice"->existingJob.setSellingPrice((Integer) value);
-                        case "remarks"->existingJob.setRemarks((String) value);
-                        case "costPrice"->existingJob.setCostPrice((Integer) value);
+                        case "remarks"->existingJob.setRemarks(existingJob.getRemarks()==null?
+                        (String) value:existingJob.getRemarks().concat((String) value));//found from reddit post
                         case "billingStatus"->existingJob.setBillingStatus((String) value);
                         case "apekshaInvoiceNo"->existingJob.setApekshaInvoiceNo((String)value);
                         case "invoiceDate"->existingJob.setInvoiceDate(parseDate(value));
@@ -281,6 +315,19 @@ public class JobService {
             jobRepository.save(existingJob);
             return new ResponseEntity<>("Job Updated", HttpStatus.OK);
         }catch (Exception E){
+            return new ResponseEntity<>(E.getLocalizedMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+    @Transactional
+    public ResponseEntity<?> deleteJob(Integer slNo){
+        try{
+            Job job=jobRepository.findByslNo(slNo);
+            if(job==null){
+                return new ResponseEntity<>("Job not found",HttpStatus.NOT_FOUND);
+            }
+            jobRepository.delete(job);
+            return new ResponseEntity<>("Job Deleted",HttpStatus.OK);
+        }catch(Exception E){
             return new ResponseEntity<>(E.getLocalizedMessage(),HttpStatus.BAD_REQUEST);
         }
     }
