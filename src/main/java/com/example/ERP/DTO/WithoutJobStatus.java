@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,6 +34,8 @@ public class WithoutJobStatus {
     private LocalDate dateOfCourier;
     private LocalDate dutyPaidDate;
     private LocalDate clearanceDate;
-    private Boolean isTemp;
+    @JsonProperty("isTemp")
+    private boolean isTemp;
+    private Integer tat;
 
 }

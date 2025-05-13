@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class WithoutCostPriceDTO {
     private Integer slNo;
     private Integer jobId;
+    @JsonProperty("isTemp")
     private boolean isTemp;
     
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
