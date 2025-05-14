@@ -191,7 +191,8 @@ public class Auth {
 
             // Set cookie header based on the origin
             String cookieHeader;
-            if (origin != null && !origin.contains("localhost")) {
+            if (origin != null ){
+            //&& !origin.contains("localhost")) {
                 // For cross-domain requests
                 cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=None; Secure; Partitioned; Max-Age=86400",
                         session.getId());
