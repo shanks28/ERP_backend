@@ -195,7 +195,7 @@ public class Auth {
             //&& !origin.contains("localhost")) {
                 // For cross-domain requests
                 cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=None; Secure; Partitioned; Max-Age=86400",
-                        session.getId());
+                        session.getId()+origin);
             } else {
                 // For same-origin or localhost testing
                 cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; Max-Age=86400",
