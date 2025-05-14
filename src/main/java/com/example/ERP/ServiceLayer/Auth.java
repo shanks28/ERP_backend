@@ -191,16 +191,16 @@ public class Auth {
 
             // Set cookie header based on the origin
             String cookieHeader;
-            if (origin != null ){
+            // if (origin != null ){
             //&& !origin.contains("localhost")) {
                 // For cross-domain requests
                 cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=None; Secure; Partitioned; Max-Age=86400",
                         session.getId()+origin);
-            } else {
-                // For same-origin or localhost testing
-                cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; Max-Age=86400",
-                        session.getId());
-            }
+            // } else {
+            //     // For same-origin or localhost testing
+            //     cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; Max-Age=86400",
+            //             session.getId()+origin);
+            // }
             httpResponse.setHeader("Set-Cookie", cookieHeader);
 
             // Prepare and return the response
