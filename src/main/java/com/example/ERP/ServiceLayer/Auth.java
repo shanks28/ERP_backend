@@ -194,7 +194,7 @@ public class Auth {
             if ((origin != null )
             && !origin.contains("localhost")){
               
-                cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=None; Secure; Partitioned; Max-Age=86400",
+                cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=None; Partitioned; Max-Age=86400",
                         session.getId());
              } else {
                  // For same-origin or localhost testing
