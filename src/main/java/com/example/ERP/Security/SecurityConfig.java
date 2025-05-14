@@ -37,6 +37,7 @@ public class SecurityConfig {
             "https://erp-frontend-gafx.onrender.com",
             "http://127.0.0.1:5500",
             "http://15.206.32.228:5174",
+            "http://43.205.13.181:5174",
             "https://ec2-3-111-73-24.ap-south-1.compute.amazonaws.com", // Add your EC2 HTTPS URL
             "null",
             "http://localhost:3000"));

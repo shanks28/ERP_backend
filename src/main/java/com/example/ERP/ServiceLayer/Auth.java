@@ -95,64 +95,123 @@ public class Auth {
         }
     }
     
+    // public ResponseEntity<?> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest,
+    //         HttpServletResponse httpResponse) {
+    //     try {
+    //         Authentication authentication = authenticationManager.authenticate(
+    //                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+    //         User user = userRepository.findByUserName(request.getUsername());
+    //         if (user == null || !user.isActive()) {
+    //             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not active or does not exist");
+    //         }
+
+    //         // Update last login
+    //         LocalDateTime localDateTime = LocalDateTime.now();
+    //         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    //         user.setLastLogin(localDateTime.format(dateTimeFormatter));
+    //         userRepository.save(user);
+
+    //         // Set security context
+    //         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+    //         securityContext.setAuthentication(authentication);
+    //         SecurityContextHolder.setContext(securityContext);
+
+    //         // Create session and store security context with the CORRECT KEY
+    //         HttpSession session = httpRequest.getSession(true);
+    //         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+
+    //         // Get the origin for proper CORS handling
+    //         String origin = httpRequest.getHeader("Origin");
+
+    //         // Set the required CORS headers first
+    //         if (origin != null) {
+    //             httpResponse.setHeader("Access-Control-Allow-Origin", origin);
+    //             httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+    //             httpResponse.setHeader("Access-Control-Expose-Headers", "Set-Cookie");
+    //         }
+
+    //         // SIMPLIFIED cookie handling - use one consistent approach
+    //         String cookieHeader;
+    //         if (origin != null && !origin.contains("localhost")) {
+    //             // For cross-domain requests
+    //             cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400",
+    //                     session.getId());
+    //         } else {
+    //             // For same-origin or localhost testing
+    //             cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; Max-Age=86400",
+    //                     session.getId());
+    //         }
+    //         httpResponse.setHeader("Set-Cookie", cookieHeader);
+
+    //         AuthDTO.LoginResponse responseDto = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
+    //         return ResponseEntity.ok(responseDto);
+    //     } catch (Exception e) {
+    //         e.printStackTrace(); // Add this for better debugging
+    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+    //                 .body("Username/password incorrect or other login error: " + e.getMessage());
+    //     }
+    // }
     public ResponseEntity<?> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
         try {
+            // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
+            // Retrieve the user from the database
             User user = userRepository.findByUserName(request.getUsername());
             if (user == null || !user.isActive()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not active or does not exist");
             }
+
+            // Update last login time
             LocalDateTime localDateTime = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             user.setLastLogin(localDateTime.format(dateTimeFormatter));
             userRepository.save(user);
+
+            // Set security context
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             securityContext.setAuthentication(authentication);
             SecurityContextHolder.setContext(securityContext);
+
+            // Create session and store security context
             HttpSession session = httpRequest.getSession(true);
-            session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
 
             // Get the origin for proper CORS handling
             String origin = httpRequest.getHeader("Origin");
 
-            // Set the required CORS headers first
+            // Set the required CORS headers
             if (origin != null) {
                 httpResponse.setHeader("Access-Control-Allow-Origin", origin);
                 httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
                 httpResponse.setHeader("Access-Control-Expose-Headers", "Set-Cookie");
             }
 
-            // Set the cookie with appropriate attributes for cross-origin
-            // Using SameSite=None for cross-origin requests between different domains
-            // Note: This will require Secure flag for many browsers
-            Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
-            sessionCookie.setHttpOnly(true);
-            sessionCookie.setPath("/");
-            sessionCookie.setMaxAge(86400);
-
-            // If it's a cross-origin request (not localhost to localhost)
+            // Set cookie header based on the origin
+            String cookieHeader;
             if (origin != null && !origin.contains("localhost")) {
-                // For cross-domain requests, we need SameSite=None
-                // But modern browsers require Secure flag with SameSite=None
-                // If you're using HTTP, we'll try with SameSite=Lax as a fallback
-                String cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400",
+                // For cross-domain requests
+                cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=86400",
                         session.getId());
-                httpResponse.setHeader("Set-Cookie", cookieHeader);
             } else {
                 // For same-origin or localhost testing
-                httpResponse.addCookie(sessionCookie);
+                cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; Max-Age=86400",
+                        session.getId());
             }
+            httpResponse.setHeader("Set-Cookie", cookieHeader);
 
+            // Prepare and return the response
             AuthDTO.LoginResponse responseDto = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
+            // Log the exception for debugging purposes
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Username/password incorrect or other login error");
+                    .body("Username/password incorrect or other login error: " + e.getMessage());
         }
     }
-
 
     public ResponseEntity<String> verifyOtp(String email, String otp){
         User obj=userRepository.findByEmail(email);
