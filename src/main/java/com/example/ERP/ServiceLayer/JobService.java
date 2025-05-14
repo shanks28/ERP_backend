@@ -75,7 +75,7 @@ public class JobService {
                 redisService.set(key,String.valueOf(lastJobId+1));
             }
             job.setUpdatedBy(principal.getName());
-            job.setTemp((boolean) request.isTemp());
+            job.setTemp(request.isTemp());
             jobRepository.save(job);
             JobStatus jobStatus=new JobStatus();
             jobStatus.setJob(job);

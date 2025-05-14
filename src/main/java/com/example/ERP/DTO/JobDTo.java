@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 public class JobDTo {
     @Data
@@ -18,7 +19,8 @@ public class JobDTo {
 
         private String customerName;
         
-        private boolean isTemp;
+        @JsonAlias({"isTemp","temp"})
+        private boolean temp;
 
         @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
         private LocalDate date;
