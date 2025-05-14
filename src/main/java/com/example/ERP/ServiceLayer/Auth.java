@@ -94,45 +94,62 @@ public class Auth {
             return new ResponseEntity<>(e.toString(),HttpStatus.BAD_REQUEST);
         }
     }
-    public ResponseEntity<?> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    
+    public ResponseEntity<?> login(AuthDTO.LoginRequest request, HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
             User user = userRepository.findByUserName(request.getUsername());
             if (user == null || !user.isActive()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not active or does not exist");
             }
-
             LocalDateTime localDateTime = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             user.setLastLogin(localDateTime.format(dateTimeFormatter));
             userRepository.save(user);
-
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             securityContext.setAuthentication(authentication);
             SecurityContextHolder.setContext(securityContext);
-
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
 
-            // Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
-            // sessionCookie.setHttpOnly(true);
-            // sessionCookie.setSecure(httpRequest.isSecure()); // Always true for HTTPS
-            // sessionCookie.setPath("/");
-            // httpResponse.addCookie(sessionCookie);
-            httpResponse.setHeader("Set-Cookie",
-            String.format("JSESSIONID=%s; Path=/; HttpOnly; Max-Age=86400", session.getId()));
+            // Get the origin for proper CORS handling
             String origin = httpRequest.getHeader("Origin");
+
+            // Set the required CORS headers first
             if (origin != null) {
                 httpResponse.setHeader("Access-Control-Allow-Origin", origin);
+                httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+                httpResponse.setHeader("Access-Control-Expose-Headers", "Set-Cookie");
             }
-            httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
-            httpResponse.setHeader("Access-Control-Expose-Headers", "Set-Cookie");
+
+            // Set the cookie with appropriate attributes for cross-origin
+            // Using SameSite=None for cross-origin requests between different domains
+            // Note: This will require Secure flag for many browsers
+            Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
+            sessionCookie.setHttpOnly(true);
+            sessionCookie.setPath("/");
+            sessionCookie.setMaxAge(86400);
+
+            // If it's a cross-origin request (not localhost to localhost)
+            if (origin != null && !origin.contains("localhost")) {
+                // For cross-domain requests, we need SameSite=None
+                // But modern browsers require Secure flag with SameSite=None
+                // If you're using HTTP, we'll try with SameSite=Lax as a fallback
+                String cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400",
+                        session.getId());
+                httpResponse.setHeader("Set-Cookie", cookieHeader);
+            } else {
+                // For same-origin or localhost testing
+                httpResponse.addCookie(sessionCookie);
+            }
+
             AuthDTO.LoginResponse responseDto = new AuthDTO.LoginResponse(user.getEmail(), user.getRole());
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username/password incorrect or other login error");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Username/password incorrect or other login error");
         }
     }
 
