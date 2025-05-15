@@ -80,7 +80,7 @@ public class Auth {
             newUser.setEmail(details.getEmail());
             newUser.setRole(details.getRole());
             userRepository.save(newUser);
-            String verificationURL="http://15.206.32.228:5174/set-password?email=" + 
+            String verificationURL="http://43.205.13.181:5174/set-password?email=" + 
                             details.getEmail();
             SimpleMailMessage mailMessage = new SimpleMailMessage();
             mailMessage.setTo(details.getEmail());
