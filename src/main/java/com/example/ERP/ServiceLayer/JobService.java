@@ -66,12 +66,12 @@ public class JobService {
             Job job;
             if (existingJob!=null) {// this is a job that already exists with similar details
                 job=new Job(Integer.parseInt(existingJob),request.getCustomerName(),
-                request.getCategory(),request.getDate(),request.getSellingPrice());
+                request.getCategory(),request.getDate(),request.getSellingPrice(),request.getCostPrice());
                 // created job if exists and update database
             }
             else{// jobid does not exist in the redis container so need to generate a new one and update redis
                 Integer lastJobId=jobRepository.findLatestJobId();
-                job=new Job(lastJobId+1,request.getCustomerName(),request.getCategory(),request.getDate(),request.getSellingPrice());
+                job=new Job(lastJobId+1,request.getCustomerName(),request.getCategory(),request.getDate(),request.getSellingPrice(),request.getCostPrice());
                 redisService.set(key,String.valueOf(lastJobId+1));
             }
             job.setUpdatedBy(principal.getName());
@@ -175,17 +175,10 @@ public class JobService {
                     existingJob.setTemp((Boolean) request.get("isTemp"));
                 }
                 if(request.get("remarks")!=null){
-                    String existingRemarks= existingJob.getRemarks();
-                    String newRemarks=(String)request.get("remarks");
-                    if (existingRemarks==null){
-                        existingJob.setRemarks(newRemarks);
-                    }
-                    else{
-                        existingJob.setRemarks(existingRemarks.concat(newRemarks));
-
-                    }
+                    existingJob.setRemarks((request.get("remarks").toString()));
                 }
             }
+            
             else if (roles.contains("ROLE_OPERATIONS")) {
                 if(request.get("dateOfCourier")!=null){
                     existingJob.setDateOfCourier(parseDate( request.get("dateOfCourier"))) ;
@@ -240,16 +233,9 @@ public class JobService {
                     existingJob.setPaymentStatus((String) request.get("paymentStatus"));
                 }
                 if (request.get("remarks") != null) {
-                    String existingRemarks= existingJob.getRemarks();
-                    String newRemarks=(String)request.get("remarks");
-                    if(existingRemarks==null){
-                        existingJob.setRemarks(newRemarks);
-                    }
-                    else{
-                        existingJob.setRemarks(existingRemarks.concat(newRemarks));
-
-                    }
+                    existingJob.setRemarks((String) request.get("remarks"));
                 }
+        
                 if (request.get("apekshaInvoiceNo") != null) {
                     existingJob.setApekshaInvoiceNo((String) request.get("apekshaInvoiceNo"));
                 }
@@ -286,8 +272,7 @@ public class JobService {
                         case "invoiceDate" -> existingJob.setInvoiceDate(parseDate(value));
                         case "courierTrackingNo" -> existingJob.setCourierTrackingNo((String) value);
                         case "paymentStatus" -> existingJob.setPaymentStatus((String) value);
-                        case "remarks" -> existingJob.setRemarks(existingJob.getRemarks()==null?
-                        (String) value:existingJob.getRemarks().concat((String) value));
+                        case "remarks" -> existingJob.setRemarks((String) value);
                         case "action" -> existingJob.setAction((String) value);
                         case "dutyPaidDate" -> existingJob.setDutyPaidDate(parseDate(value));
                         case "isTemp"->existingJob.setTemp((Boolean) value);
@@ -299,16 +284,14 @@ public class JobService {
                     if(key.equals("slNo")||value==null) return;
                     switch(key){
                         case "paymentStatus"->existingJob.setPaymentStatus((String) value);
-                        case "remarks"->existingJob.setRemarks(existingJob.getRemarks()==null?
-                        (String) value:existingJob.getRemarks().concat((String) value));//found from reddit post
+                        case "remarks"-> existingJob.setRemarks((String) value);//found from reddit post
                         case "billingStatus"->existingJob.setBillingStatus((String) value);
                         case "apekshaInvoiceNo"->existingJob.setApekshaInvoiceNo((String)value);
                         case "invoiceDate"->existingJob.setInvoiceDate(parseDate(value));
                         case "dateOfCourier"->existingJob.setDateOfCourier(parseDate(value));
                     }
                 }
-                )
-                ;
+                );
 
             }
             existingJob.setUpdatedBy(principal.getName());

@@ -28,6 +28,7 @@ public class JobDTo {
         private String category;
         
         private Integer sellingPrice;
+        private Integer costPrice;
     }
 
 }

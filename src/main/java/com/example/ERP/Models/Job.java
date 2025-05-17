@@ -17,12 +17,13 @@ import java.time.LocalDateTime;
 @Table(name="Job")
 @ToString
 public class Job {
-    public Job(Integer jobId, String customerName, String category, LocalDate localDate,Integer sellingPrice){
+    public Job(Integer jobId, String customerName, String category, LocalDate localDate,Integer sellingPrice,Integer costPrice){
         this.jobId=jobId;
         this.customerName=customerName;
         this.jobDate=localDate;
         this.category=category;
         this.sellingPrice=sellingPrice;
+        this.costPrice=costPrice;
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

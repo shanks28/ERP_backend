@@ -53,6 +53,7 @@ public class EmailService {
             if (adminUsers.isEmpty()){
                 return new ResponseEntity<>("No admin users found",HttpStatus.NOT_FOUND);
             }
+            List <User> billingUsers=userRepository.findByRole(Role.BILLING);
             
             String body = String.format(
                 "Job ID: %s\n" +
@@ -75,12 +76,26 @@ public class EmailService {
                 message.setText(body);
                 mailSender.send(message);
             }
-            for(User operations:operationsUsers){
-                SimpleMailMessage message=new SimpleMailMessage();
-                message.setTo(operations.getEmail());
-                message.setSubject("Job Status Update"+jobStatus.getJob().getJobId());
-                message.setText(body);
-                mailSender.send(message);
+            //send mail to billing after operations is completed
+            
+            if(jobStatus.getOperationsStatus().equalsIgnoreCase("completed")){
+                for(User billing:billingUsers){
+                    SimpleMailMessage message=new SimpleMailMessage();
+                    message.setTo(billing.getEmail());
+                    message.setSubject("Job Status Update"+jobStatus.getJob().getJobId());
+                    message.setText(body);
+                    mailSender.send(message);
+                }
+            }
+            //send mail to operations after crm is completed
+            else if(jobStatus.getCrmStatus().equalsIgnoreCase("completed")) {
+                for (User operations : operationsUsers) {
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setTo(operations.getEmail());
+                    message.setSubject("Job Status Update" + jobStatus.getJob().getJobId());
+                    message.setText(body);
+                    mailSender.send(message);
+                }
             }
             return new ResponseEntity<>("Email notification sent successfully",HttpStatus.OK);
             
